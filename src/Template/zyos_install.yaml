@@ -1,0 +1,80 @@
+zyos_install:
+
+    # Información de estructura que requieren los procesos de la instalación de la
+    # aplicación en este punto los datos son para procesos de estructura y creación
+    # de directorios y archivos
+
+    # Usuario apache configurado para permisos de directorios y archivos
+    apache_user: 'www-data'
+
+    # Permiso configurado para asignación de directorios y archivos
+    directory_permission: '0777'
+
+    # Directorio donde se guardaran los datos de los procesos de instalación
+    path: '%kernel.project_dir%/src/Resources/install'
+
+    # Directorio donde se guardaran los DUMP de base de datos
+    path_dump: '%kernel.project_dir%/src/Resources/install/dump'
+
+    # Directorio de archivos SQL que se importarán a la base de datos
+    path_sql: '%kernel.project_dir%/src/Resources/install/sql'
+
+    # Información de los diferentes comandos que se ejecutarán en el proceso de
+    # instalación los procesos que se ejecutarán para el procedimiento requerido
+
+    # Ejecución de comando DOCTRINE de creación de base de datos
+    database_create: true
+
+    # Ejecución de comando DOCTRINE de eliminación de base de datos
+    database_drop: true
+
+    # Ejecución de comando para insertar los datos a través de fixtures de DOCTRINE
+    database_fixtures: true
+
+    # Ejecución de comando DOCTRINE de importar archivos SQL a la base de datos
+    database_import_sql: true
+
+    # Ejecución de comando DOCTRINE creación de esquema
+    database_schema_create: true
+
+    # Ejecución de comando DOCTRINE actualización de esquema
+    database_update_schema: true
+
+    # Ejecución de comando de instalación de assets de librerías y bundles
+    assets_install: true
+
+    # Ejecución de comando para limpiar la cache
+    cache_clear: true
+
+    # Ejecución de commando para crear symlink
+    create_symlink: true
+
+    # Ejecución de commando para crear mirror de directorios
+    create_mirror: true
+
+    # Este proceso agrega enlaces simbólicos de un archivo o un directorio dentro del
+    # proyecto este proceso se maneja para procesos específicos los cuáles se pueden
+    # asignar para entornos de desarrollo producción o ambos
+    #
+    # symlink:
+    #    - { environment: ['dev', 'prod'], origin: "/path/to/origin", destination: "/path/to/destination" }
+    symlink: ~
+
+    # Este proceso copia de un punto a otro de un directorio dentro del
+    # proyecto este proceso se maneja para procesos específicos los cuáles se pueden
+    # asignar para entornos de desarrollo producción o ambos
+    #
+    # mirror:
+    #    - { environment: ['dev', 'prod'], origin: "/path/to/origin", destination: "/path/to/destination" }
+    mirror: ~
+
+    # Proceso de los archivos que se cargaran simultáneamente en la instalación de
+    # la aplicación estos archivos se cargaran después de la carga de datos de los
+    # Fixtures de Doctrine.
+    # Se cargaran los archivos cuando se encuentre la variable activa
+    # import_sql_database: true
+    # los archivos deben estar ubicados en la ruta src/Resources/install/sql
+    #
+    # import_sql:
+    #    - { environment: ['dev', 'prod'], file: "filename.sql" }
+    import_sql: ~

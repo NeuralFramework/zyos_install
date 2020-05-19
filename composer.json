@@ -1,0 +1,24 @@
+{
+    "name": "zyos/zyos_install",
+    "description": "Utilidades de desarrollo de aplicaciones con symfony 5",
+    "type": "symfony-bundle",
+    "require": {
+        "php": "^7.2.5"
+    },
+    "license": "mit",
+    "authors": [
+        {
+            "name": "Carlos Parra",
+            "email": "neural.framework@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "ZyosInstallBundle\\": "src/"
+        }
+    },
+    "require-dev": {
+        "doctrine/doctrine-fixtures-bundle": "^3.3@dev"
+    }
+}
