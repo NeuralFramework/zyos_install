@@ -2,8 +2,8 @@
 
     namespace ZyosInstallBundle\Services;
 
-    use Symfony\Component\DependencyInjection\ContainerInterface;
     use Symfony\Component\Filesystem\Filesystem;
+    use ZyosInstallBundle\Parameters\Parameters;
 
     /**
      * Class Skeleton
@@ -13,9 +13,9 @@
     class Skeleton {
 
         /**
-         * @var ContainerInterface
+         * @var Parameters
          */
-        private $container;
+        private $parameters;
 
         /**
          * @var Filesystem
@@ -25,12 +25,12 @@
         /**
          * Skeleton constructor.
          *
-         * @param ContainerInterface $container
+         * @param Parameters $parameters
          * @param Filesystem $filesystem
          */
-        public function __construct(ContainerInterface $container, Filesystem $filesystem) {
+        public function __construct(Parameters $parameters, Filesystem $filesystem) {
 
-            $this->container = $container;
+            $this->parameters = $parameters;
             $this->filesystem = $filesystem;
         }
 
@@ -41,7 +41,6 @@
          */
         public function validate(): self {
 
-            $this->createIfNotExists(dirname($this->getInstall()));
             $this->createIfNotExists($this->getInstall());
             $this->createIfNotExists($this->getDump());
             $this->createIfNotExists($this->getSql());
@@ -55,7 +54,7 @@
          * @return mixed
          */
         public function getInstall(): string {
-            return $this->container->getParameter('zyos_install.path');
+            return $this->parameters->getPathLocal();
         }
 
         /**
@@ -73,7 +72,7 @@
          * @return string
          */
         public function getDump(): string {
-            return $this->container->getParameter('zyos_install.path_dump');
+            return $this->parameters->getPathDump();
         }
 
         /**
@@ -91,7 +90,7 @@
          * @return string
          */
         public function getSql(): string {
-            return $this->container->getParameter('zyos_install.path_sql');
+            return $this->parameters->getPathSQL();
         }
 
         /**
@@ -109,7 +108,7 @@
          * @return string
          */
         public function getLockFile(): string {
-            return sprintf('%s/lock.lock', $this->getInstall());
+            return $this->parameters->getLockFile();
         }
 
         /**
@@ -122,6 +121,13 @@
         }
 
         /**
+         * Create lock file
+         */
+        public function createLockFile(): void {
+            $this->filesystem->dumpFile($this->getLockFile(), '');
+        }
+
+        /**
          * Crear directorio si no existe
          *
          * @param string $path
@@ -131,7 +137,6 @@
             if (!$this->filesystem->exists($path)):
                 $this->filesystem->mkdir($path);
                 $this->createGitIgnore($path);
-                $this->createPermission($path);
             endif;
         }
 
@@ -142,16 +147,5 @@
          */
         private function createGitIgnore(string $path) {
             $this->filesystem->dumpFile(sprintf('%s/.gitignore', $path), '');
-        }
-
-        /**
-         * Asignación de permisos
-         *
-         * @param string $path
-         */
-        private function createPermission(string $path): void {
-
-            //$this->filesystem->chown($path, $this->container->getParameter('zyos_install.directory_permission'), true);
-            //$this->filesystem->chgrp($path, $this->container->getParameter('zyos_install.apache_user'), true);
         }
     }

@@ -15,11 +15,11 @@
     use ZyosInstallBundle\Services\Skeleton;
 
     /**
-     * Class ZyosInstallCommand
+     * Class ZyosSymfonyCommand
      *
      * @package ZyosInstallBundle\Command
      */
-    class ZyosInstallCommand extends Command {
+    class ZyosSymfonyCommand extends Command {
 
         /**
          * @var Arguments
@@ -27,19 +27,9 @@
         private $arguments;
 
         /**
-         * @var Skeleton
-         */
-        private $skeleton;
-
-        /**
          * @var Helpers
          */
         private $helpers;
-
-        /**
-         * @var SymfonyCommand
-         */
-        private $symfonyCommand;
 
         /**
          * @var Parameters
@@ -47,12 +37,22 @@
         private $parameters;
 
         /**
+         * @var Skeleton
+         */
+        private $skeleton;
+
+        /**
+         * @var SymfonyCommand
+         */
+        private $symfonyCommand;
+
+        /**
          * @var array
          */
         private $count = [];
 
         /**
-         * ZyosInstallCommand constructor.
+         * ZyosSymfonyCommand constructor.
          *
          * @param string|null $name
          * @param Arguments $arguments
@@ -69,7 +69,6 @@
             $this->parameters = $parameters;
             $this->skeleton = $skeleton->validate();
             $this->symfonyCommand = $symfonyCommand;
-            $this->setHidden($this->skeleton->lockFileExists());
         }
 
         /**
@@ -77,21 +76,19 @@
          */
         protected function configure() {
 
-            $this->setName('zyos:install');
-            $this->setDescription('Procesos internos de instalación de la aplicación');
+            $this->setName('zyos:execute:commands');
+            $this->setDescription('Ejecuta comandos de Symfony personalizados desde la configuración');
             $this->addArgument('environment', InputArgument::OPTIONAL, 'Entorno de Desarrollo a Ejecutar', 'dev');
         }
 
         /**
-         * Execute
-         *
          * @param InputInterface $input
          * @param OutputInterface $output
          *
          * @return int
          * @throws \Exception
          */
-        protected function execute(InputInterface $input, OutputInterface $output) {
+        protected function execute(InputInterface $input, OutputInterface $output): int {
 
             $io = new SymfonyStyle($input, $output);
             $this->helpers->setSymfonyStyle($io);
@@ -106,26 +103,24 @@
                 return 1;
             endif;
 
-            if (!$this->parameters->getInstallEnable()):
+            if (!$this->parameters->getCommandsEnable()):
                 $this->helpers->gettio()->error('El comando solicitado esta deshabilitado');
                 return 1;
             endif;
 
-            return $this->executeProcess($input, $output);
+            return $this->validate($input, $output);
         }
 
         /**
-         * Execute Process
-         *
          * @param InputInterface $input
          * @param OutputInterface $output
          *
          * @return int
          * @throws \Exception
          */
-        private function executeProcess(InputInterface $input, OutputInterface $output) {
+        private function validate(InputInterface $input, OutputInterface $output): int {
 
-            $this->helpers->gettio()->title('Despliegue - Instalación de la Aplicación');
+            $this->helpers->gettio()->title('Ejecutar Comandos Symfony');
             $this->helpers->gettio()->text([
                 'Proceso de ejecución de comandos para la implementación del despliegue de la',
                 'aplicación en el entorno requerido este proceso solo es una ayuda para',
@@ -133,15 +128,13 @@
             ]);
             $this->helpers->gettio()->newLine(2);
 
-
-            $environment = $this->arguments->getEnvironment($input);
-            $params = new MethodBag($this->parameters->getInstallConfig());
+            $params = new MethodBag($this->parameters->getCommandsConfig());
 
             if ($params->count() > 0):
-                return $this->existsCommands($input, $output, $params, $environment);
+                return $this->validateExists($input, $output, $params);
             else:
-                $this->helpers->gettio()->success('No hay comandos registrados para ejecutar');
-                return 0;
+                $this->helpers->gettio()->success('No hay comandos configurados para ejecutar');
+                return 1;
             endif;
         }
 
@@ -149,72 +142,61 @@
          * @param InputInterface $input
          * @param OutputInterface $output
          * @param MethodBag $params
-         * @param string $environment
          *
          * @return int
          * @throws \Exception
          */
-        private function existsCommands(InputInterface $input, OutputInterface $output, MethodBag $params, string $environment): int {
+        private function validateExists(InputInterface $input, OutputInterface $output, MethodBag $params): int {
 
-            $this->helpers->gettio()->section('Validando Existencia de Comandos');
-            $count = [];
+            $this->helpers->gettio()->section('Validando existencia de comandos de Symfony');
 
-            foreach ($params AS $item):
-                if ('symfony_command' === $item['type']):
-                    $this->getApplication()->find($item['command']);
-                    $count[] = 1;
-                endif;
+            $this->helpers->gettio()->progressStart($params->count());
+            foreach ($params AS $param):
+                $this->getApplication()->find($param['command']);
+                $this->helpers->gettio()->progressAdvance();
             endforeach;
+            $this->helpers->gettio()->progressFinish();
 
-            $this->helpers->gettio()->text(sprintf('Cantidad de comandos validados: <comment>%s comandos</comment>', count($count)));
-            return $this->executeCommands($input, $output, $params, $environment);
+            return $this->executeProcess($input, $output, $params);
         }
 
         /**
          * @param InputInterface $input
          * @param OutputInterface $output
          * @param MethodBag $params
-         * @param string $environment
          *
          * @return int
          * @throws \Exception
          */
-        private function executeCommands(InputInterface $input, OutputInterface $output, MethodBag $params, string $environment): int {
+        private function executeProcess(InputInterface $input, OutputInterface $output, MethodBag $params): int {
 
-            $this->helpers->gettio()->section('Validando Existencia de Comandos');
+            $this->helpers->gettio()->section('Ejecutando los comandos de Symfony configurados');
 
-            foreach ($params AS $item):
-                if ($item['enable']):
-                    $this->validateEnvironment($output, $environment, $item);
-                endif;
+            foreach ($params AS $param):
+                $this->validateEnvironment($input, $output, $param);
             endforeach;
 
             $this->helpers->gettio()->newLine(2);
             $this->helpers->gettio()->text(sprintf('Se ha ejecutado: <comment>%s comandos</comment>', count($this->count)));
-            $this->helpers->gettio()->success('Se ha finalizado el proceso');
-
-            if ('prod' == $this->arguments->getEnvironment($input)):
-                $this->skeleton->createLockFile();
-            endif;
+            $this->helpers->gettio()->success('Se ha finalizado el proceso de ejecución de comandos');
 
             return 0;
         }
 
         /**
+         * @param InputInterface $input
          * @param OutputInterface $output
-         * @param string $environment
          * @param array $params
          *
-         * @return void
          * @throws \Exception
          */
-        private function validateEnvironment(OutputInterface $output, string $environment, array $params = []): void {
+        private function validateEnvironment(InputInterface $input, OutputInterface $output, array $params = []): void {
+
+            $environment = $this->arguments->getEnvironment($input);
 
             if (in_array($environment, $params['environment'])):
-                if ('symfony_command' === $params['type']):
-                    $this->symfonyCommand->execute($this->getApplication(), $output, $params['command'], $params['arguments'], $environment);
-                    $this->count[] = 1;
-                endif;
+                $this->symfonyCommand->execute($this->getApplication(), $output, $params['command'], $params['arguments'], $environment);
+                $this->count[] = 1;
             endif;
         }
     }

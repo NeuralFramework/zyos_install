@@ -2,6 +2,7 @@
 
     namespace ZyosInstallBundle\Services;
 
+    use Symfony\Component\Console\Input\InputInterface;
     use Symfony\Component\Console\Style\SymfonyStyle;
 
     /**

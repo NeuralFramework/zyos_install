@@ -7,11 +7,11 @@
     use Symfony\Component\Console\Input\InputInterface;
     use Symfony\Component\Console\Output\OutputInterface;
     use Symfony\Component\Console\Style\SymfonyStyle;
-    use Symfony\Component\DependencyInjection\ContainerInterface;
-    use Symfony\Component\Filesystem\Filesystem;
-    use ZyosInstallBundle\MethodBag;
+    use ZyosInstallBundle\Component\SymfonySymlink;
+    use ZyosInstallBundle\ParameterBag\MethodBag;
+    use ZyosInstallBundle\Parameters\Commands;
+    use ZyosInstallBundle\Parameters\Parameters;
     use ZyosInstallBundle\Services\Arguments;
-    use ZyosInstallBundle\Services\Commands;
     use ZyosInstallBundle\Services\Helpers;
     use ZyosInstallBundle\Services\Skeleton;
 
@@ -21,26 +21,10 @@
      * @package ZyosInstallBundle\Command
      */
     class ZyosSymlinkCommand extends Command {
-
         /**
          * @var Arguments
          */
         private $arguments;
-
-        /**
-         * @var ContainerInterface
-         */
-        private $container;
-
-        /**
-         * @var Commands
-         */
-        private $commands;
-
-        /**
-         * @var Filesystem
-         */
-        private $filesystem;
 
         /**
          * @var Helpers
@@ -48,30 +32,43 @@
         private $helpers;
 
         /**
+         * @var Parameters
+         */
+        private $parameters;
+
+        /**
          * @var Skeleton
          */
         private $skeleton;
+
+        /**
+         * @var SymfonySymlink
+         */
+        private $symfonySymlink;
+
+        /**
+         * @var array
+         */
+        private $count = [];
 
         /**
          * ZyosSymlinkCommand constructor.
          *
          * @param string|null $name
          * @param Arguments $arguments
-         * @param ContainerInterface $container
-         * @param Commands $commands
          * @param Helpers $helpers
-         * @param Filesystem $filesystem
+         * @param Parameters $parameters
          * @param Skeleton $skeleton
+         * @param SymfonySymlink $symfonySymlink
          */
-        function __construct(?string $name = null, Arguments $arguments, ContainerInterface $container, Commands $commands, Helpers $helpers, Filesystem $filesystem, Skeleton $skeleton) {
+        function __construct(?string $name = null, Arguments $arguments, Helpers $helpers, Parameters $parameters, Skeleton $skeleton, SymfonySymlink $symfonySymlink) {
 
             parent::__construct($name);
             $this->arguments = $arguments;
-            $this->container = $container;
-            $this->commands = $commands;
             $this->helpers = $helpers;
-            $this->filesystem = $filesystem;
+            $this->parameters = $parameters;
             $this->skeleton = $skeleton->validate();
+            $this->symfonySymlink = $symfonySymlink;
             $this->setHidden($this->skeleton->lockFileExists());
         }
 
@@ -93,16 +90,23 @@
          */
         protected function execute(InputInterface $input, OutputInterface $output): int {
 
-            if ($this->skeleton->lockFileExists()):
-                throw new \RuntimeException('No es posible ejecutar este comando, la aplicación se encuentra en producción');
-            endif;
-
-            if (!$this->container->getParameter('zyos_install.create_symlink')):
-                throw new \RuntimeException('No es posible ejecutar este comando');
-            endif;
-
             $io = new SymfonyStyle($input, $output);
             $this->helpers->setSymfonyStyle($io);
+
+            if ($this->skeleton->lockFileExists()):
+                $this->helpers->gettio()->error('No es posible ejecutar el comando');
+                return 1;
+            endif;
+
+            if (!$this->arguments->validateEnvironment($input)):
+                $this->helpers->gettio()->error('El entorno indicado no es válido');
+                return 1;
+            endif;
+
+            if (!$this->parameters->getSymlinkEnable()):
+                $this->helpers->gettio()->error('El comando solicitado esta deshabilitado');
+                return 1;
+            endif;
 
             return $this->validate($input, $output);
         }
@@ -115,62 +119,84 @@
          */
         private function validate(InputInterface $input, OutputInterface $output): int {
 
-            $this->helpers->gettio()->title('Creación de Symlinks');
+            $this->helpers->gettio()->title('Creación de Links Simbólicos - Symlinks');
             $this->helpers->gettio()->text([
-                'Generá el proceso de creación de los enlaces simbólicos del punto de origen',
-                'al punto de destino el cuál se aplican para el proceso de desarrollo y/o deploy',
-                'de producción.'
+                'Proceso de ejecución de comandos para la implementación del despliegue de la',
+                'aplicación en el entorno requerido este proceso solo es una ayuda para',
+                'simplificar el desarrollo o el paso a producción.'
             ]);
+            $this->helpers->gettio()->newLine(2);
 
-            $params = new MethodBag($this->container->getParameter('zyos_install.symlink'));
+            $params = new MethodBag($this->parameters->getSymlinkConfig());
 
             if ($params->count() > 0):
-                return $this->execution($params, $output, $this->arguments->getEnvironment($input));
+                return $this->validateExists($input, $output, $params);
             else:
-                $this->helpers->gettio()->success('No hay archivos configurados para el procesamiento');
+                $this->helpers->gettio()->success('No hay Symlinks para generar');
                 return 1;
             endif;
         }
 
         /**
-         * @param MethodBag $parameters
+         * @param InputInterface $input
          * @param OutputInterface $output
-         * @param string $environment
+         * @param MethodBag $params
          *
          * @return int
          */
-        private function execution(MethodBag $parameters, OutputInterface $output, string $environment): int {
+        private function validateExists(InputInterface $input, OutputInterface $output, MethodBag $params): int {
 
-            $list = [];
+            $this->helpers->gettio()->section('Validando existencia de directorios o archivos de origen');
+            $this->helpers->gettio()->progressStart($params->count());
 
-            foreach ($parameters->all() AS $array):
+            foreach ($params->all() AS $item):
 
-                if (in_array($environment, $array['environment'])):
-                    if ($this->filesystem->exists($array['origin'])):
-                        $this->validateProcess($array['origin'], $array['destination']);
-                        $list[] = 1;
-                    else:
-                        throw new \RuntimeException(sprintf('El directorio o archivo de origen: %s NO EXISTE', $array['origin']));
-                    endif;
+                if (!$this->symfonySymlink->exists($item['origin'])):
+                    throw new \RuntimeException(sprintf('No existe el directorio o archivo: %s', $item['origin']));
                 endif;
+
             endforeach;
 
+            $this->helpers->gettio()->progressFinish();
+
+            return $this->create($input, $output, $params);
+        }
+
+        /**
+         * @param InputInterface $input
+         * @param OutputInterface $output
+         * @param MethodBag $params
+         *
+         * @return int
+         */
+        private function create(InputInterface $input, OutputInterface $output, MethodBag $params): int {
+
+            $this->helpers->gettio()->section('Creando los Links Simbólicos - Symlinks Solicitados');
+            $this->helpers->gettio()->progressStart($params->count());
+
+            foreach ($params->all() AS $item):
+                $this->validateEnvironment($input, $output, $item);
+                $this->helpers->gettio()->progressAdvance();
+            endforeach;
+
+            $this->helpers->gettio()->progressFinish();
             $this->helpers->gettio()->newLine(2);
-            $this->helpers->gettio()->text(sprintf('<comment>Cantidad de Registros Procesados:</comment> <info>%s registros</info>', count($list)));
-            $this->helpers->gettio()->success('Se ha ejecutado la creación de Symlink correctamente');
+            $this->helpers->gettio()->text(sprintf('Se ha ejecutado: <comment>%s comandos</comment>', count($this->count)));
+            $this->helpers->gettio()->success('Se ha finalizado el proceso de creación Symlinks');
+
             return 0;
         }
 
         /**
-         * @param string $origin
-         * @param string $destination
+         * @param InputInterface $input
+         * @param OutputInterface $output
+         * @param array $array
          */
-        private function validateProcess(string $origin, string $destination): void {
+        private function validateEnvironment(InputInterface $input, OutputInterface $output, array $array = []): void {
 
-            if ($this->filesystem->exists($destination)):
-                $this->filesystem->remove($destination);
+            if (in_array($this->arguments->getEnvironment($input), $array['environment'])):
+                $this->symfonySymlink->createIfNotExists($array['origin'], $array['destination']);
+                $this->count[] = 1;
             endif;
-
-            $this->filesystem->symlink($origin, $destination, true);
         }
     }

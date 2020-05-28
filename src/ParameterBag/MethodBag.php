@@ -1,6 +1,6 @@
 <?php
 
-    namespace ZyosInstallBundle;
+    namespace ZyosInstallBundle\ParameterBag;
 
     use Symfony\Component\HttpFoundation\ParameterBag;
 
@@ -41,5 +41,17 @@
          */
         public function merge(string $key, array $params = []): array {
             return array_merge($this->get($key, []), $params);
+        }
+
+        /**
+         * In array data
+         * 
+         * @param string $key
+         * @param string|null $needle
+         *
+         * @return bool
+         */
+        public function in(string $key, ?string $needle) {
+            return in_array($needle, $this->get($key, []));
         }
     }

@@ -2,21 +2,23 @@
     "name": "zyos/zyos_install",
     "description": "Utilidades de desarrollo de aplicaciones con symfony 5",
     "type": "symfony-bundle",
-    "require": {
-        "php": "^7.2.5"
-    },
+    "minimum-stability": "dev",
     "license": "mit",
     "authors": [
         {
             "name": "Carlos Parra",
-            "email": "neural.framework@gmail.com"
+            "email": "neural.framework@gmail.com",
+            "homepage": "https://github.com/neuralframework"
         }
     ],
-    "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
             "ZyosInstallBundle\\": "src/"
         }
+    },
+    "require": {
+        "php": "^7.2.5",
+        "doctrine/doctrine-migrations-bundle": "^1.0"
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^3.3@dev"

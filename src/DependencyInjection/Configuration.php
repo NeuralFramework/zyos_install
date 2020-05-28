@@ -2,6 +2,7 @@
 
     namespace ZyosInstallBundle\DependencyInjection;
 
+    use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
     use Symfony\Component\Config\Definition\Builder\TreeBuilder;
     use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -21,148 +22,263 @@
 
             $treeBuilder = new TreeBuilder('zyos_install');
             $rootNode = $treeBuilder->getRootNode();
-            $rootNode
-                ->children()
-                    ->scalarNode('apache_user')
-                        ->info('Usuario apache configurado para permisos de directorios y archivos')
-                        ->isRequired()
-                        ->defaultValue('www-data')
-                    ->end()
-                    ->scalarNode('directory_permission')
-                        ->info('Permiso configurado para asignación de directorios y archivos')
-                        ->isRequired()
-                        ->defaultValue('0777')
-                    ->end()
-                    ->scalarNode('path')
-                        ->info('Directorio donde se guardaran los datos de los procesos de instalación')
-                        ->isRequired()
-                        ->defaultValue('%kernel.project_dir%/src/Resources/install')
-                    ->end()
-                    ->scalarNode('path_dump')
-                        ->info('Directorio donde se guardaran los DUMP de base de datos')
-                        ->isRequired()
-                        ->defaultValue('%kernel.project_dir%/src/Resources/install/dump')
-                    ->end()
-                    ->scalarNode('path_sql')
-                        ->info('Directorio de archivos SQL que se importarán a la base de datos')
-                        ->isRequired()
-                        ->defaultValue('%kernel.project_dir%/src/Resources/install/sql')
-                    ->end()
 
-                    ->booleanNode('database_create')
-                        ->info('Ejecución de comando DOCTRINE de creación de base de datos')
-                        ->isRequired()
-                        ->defaultTrue()
-                    ->end()
-                    ->booleanNode('database_drop')
-                        ->info('Ejecución de comando DOCTRINE de eliminación de base de datos')
-                        ->isRequired()
-                        ->defaultTrue()
-                    ->end()
-                    ->booleanNode('database_fixtures')
-                        ->info('Ejecución de comando para insertar los datos a través de fixtures de DOCTRINE')
-                        ->isRequired()
-                        ->defaultTrue()
-                    ->end()
-                    ->booleanNode('database_import_sql')
-                        ->info('Ejecución de comando DOCTRINE de importar archivos SQL a la base de datos')
-                        ->isRequired()
-                        ->defaultTrue()
-                    ->end()
-                    ->booleanNode('database_schema_create')
-                        ->info('Ejecución de comando DOCTRINE creación de esquema')
-                        ->isRequired()
-                        ->defaultTrue()
-                    ->end()
-                    ->booleanNode('database_update_schema')
-                        ->info('Ejecución de comando DOCTRINE actualización de esquema')
-                        ->isRequired()
-                        ->defaultTrue()
-                    ->end()
-                    ->booleanNode('assets_install')
-                        ->info('Ejecución de comando de instalación de assets de librerías y bundles')
-                        ->isRequired()
-                        ->defaultTrue()
-                    ->end()
-                    ->booleanNode('cache_clear')
-                        ->info('Ejecución de comando para limpiar la cache')
-                        ->isRequired()
-                        ->defaultTrue()
-                    ->end()
-                    ->booleanNode('create_symlink')
-                        ->info('Ejecución de comando para crear Symlinks')
-                        ->isRequired()
-                        ->defaultTrue()
-                    ->end()
-                    ->booleanNode('create_mirror')
-                        ->info('Ejecución de comando para crear mirror de directorios')
-                        ->isRequired()
-                        ->defaultTrue()
-                    ->end()
-                    ->arrayNode('symlink')
-                        ->prototype('array')
-                            ->children()
-                                ->arrayNode('environment')
-                                    ->info('Entornos de ejecución del registro.')
-                                    ->beforeNormalization()->ifString()->then(function ($v) { return [$v]; })->end()
-                                    ->prototype('scalar')->end()
-                                    ->defaultValue([])
-                                ->end()
-                                ->scalarNode('origin')
-                                    ->isRequired()
-                                    ->info('Directorio o archivo de origen.')
-                                    ->beforeNormalization()->ifString()->then(function ($v) { return realpath($v); })->end()
-                                ->end()
-                                ->scalarNode('destination')
-                                    ->isRequired()
-                                    ->info('Directorio o archivo de destino.')
-                                    ->beforeNormalization()->ifString()->then(function ($v) { return '%kernel.project_dir%/'.ltrim($v, DIRECTORY_SEPARATOR); })->end()
-                                ->end()
-                            ->end()
-                        ->end()
-                    ->end()
-                    ->arrayNode('mirror')
-                        ->prototype('array')
-                            ->children()
-                                ->arrayNode('environment')
-                                    ->info('Entornos de ejecución del registro.')
-                                    ->beforeNormalization()->ifString()->then(function ($v) { return [$v]; })->end()
-                                    ->prototype('scalar')->end()
-                                    ->defaultValue([])
-                                ->end()
-                                ->scalarNode('origin')
-                                    ->isRequired()
-                                    ->info('Directorio de origen.')
-                                    ->beforeNormalization()->ifString()->then(function ($v) { return realpath($v); })->end()
-                                ->end()
-                                ->scalarNode('destination')
-                                    ->isRequired()
-                                    ->info('Directorio de destino.')
-                                    ->beforeNormalization()->ifString()->then(function ($v) { return '%kernel.project_dir%/'.ltrim($v, DIRECTORY_SEPARATOR); })->end()
-                                ->end()
-                            ->end()
-                        ->end()
-                    ->end()
-                    ->arrayNode('import_sql')
-                        ->prototype('array')
-                            ->children()
-                                ->arrayNode('environment')
-                                    ->info('Entornos de ejecución del registro.')
-                                    ->beforeNormalization()->ifString()->then(function ($v) { return [$v]; })->end()
-                                    ->prototype('scalar')->end()
-                                    ->defaultValue([])
-                                ->end()
-                                ->scalarNode('file')
-                                    ->isRequired()
-                                    ->info('Archivo SQL a importar')
-                                    ->beforeNormalization()->ifString()->then(function ($v) { return '%zyos_install.path_sql%/'.$v; })->end()
-                                ->end()
-                            ->end()
-                        ->end()
-                    ->end()
-
-                ->end();
+            $this->addConfigurationInstall($rootNode);
+            $this->addConfigurationPaths($rootNode);
+            $this->addConfigurationSymlink($rootNode);
+            $this->addConfigurationMirrors($rootNode);
+            $this->addConfigurationDumpConnection($rootNode);
+            $this->addConfigurationSQLImport($rootNode);
+            $this->addConfigurationCommands($rootNode);
 
             return $treeBuilder;
+        }
+
+        /**
+         * @param ArrayNodeDefinition $rootNode
+         */
+        private function addConfigurationDumpConnection(ArrayNodeDefinition $rootNode): void {
+
+            $rootNode->children()
+                    ->arrayNode('dump')
+                        ->children()
+                            ->booleanNode('enable')->defaultTrue()->end()
+                            ->arrayNode('connections')
+                                ->useAttributeAsKey('name')
+                                ->prototype('array')
+                                    ->children()
+                                        ->enumNode('client')->values(['mysqldump'])->end()
+                                        ->scalarNode('host')->isRequired()->cannotBeEmpty()->defaultNull()->end()
+                                        ->integerNode('port')->defaultValue('3306')->end()
+                                        ->scalarNode('username')->isRequired()->cannotBeEmpty()->end()
+                                        ->scalarNode('password')->isRequired()->cannotBeEmpty()->end()
+                                        ->scalarNode('database')->isRequired()->cannotBeEmpty()->end()
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end();
+        }
+
+        /**
+         * @param ArrayNodeDefinition $rootNode
+         */
+        private function addConfigurationPaths(ArrayNodeDefinition $rootNode): void {
+
+            $rootNode->children()
+                    ->arrayNode('paths')
+                        ->children()
+                            ->scalarNode('local')->isRequired()->cannotBeEmpty()->end()
+                            ->scalarNode('dump')->isRequired()->cannotBeEmpty()->end()
+                            ->scalarNode('sql')->isRequired()->cannotBeEmpty()->end()
+                        ->end()
+                    ->end()
+                ->end();
+        }
+
+        /**
+         * @param ArrayNodeDefinition $rootNode
+         */
+        private function addConfigurationSymlink(ArrayNodeDefinition $rootNode): void {
+
+            $rootNode->children()
+                    ->arrayNode('symlinks')
+                        ->children()
+                            ->booleanNode('enable')->isRequired()->defaultFalse()->end()
+                            ->arrayNode('configurations')
+                                ->prototype('array')
+                                    ->children()
+                                        ->arrayNode('environment')
+                                            ->info('Entornos de ejecución del registro.')
+                                            ->beforeNormalization()->ifString()->then(function ($v) { return [$v]; })->end()
+                                            ->prototype('scalar')->end()
+                                            ->defaultValue([])
+                                        ->end()
+                                        ->scalarNode('origin')
+                                            ->isRequired()
+                                            ->info('Directorio o archivo de origen.')
+                                            ->beforeNormalization()->ifString()->then(function ($v) { return realpath($v); })->end()
+                                        ->end()
+                                        ->scalarNode('destination')
+                                            ->isRequired()
+                                            ->info('Directorio o archivo de destino.')
+                                            ->beforeNormalization()->ifString()->then(function ($v) { return '%kernel.project_dir%/'.ltrim($v, DIRECTORY_SEPARATOR); })->end()
+                                        ->end()
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end();
+        }
+
+        /**
+         * @param ArrayNodeDefinition $rootNode
+         */
+        private function addConfigurationMirrors(ArrayNodeDefinition $rootNode): void {
+
+            $rootNode->children()
+                    ->arrayNode('mirrors')
+                        ->children()
+                            ->booleanNode('enable')->isRequired()->defaultFalse()->end()
+                            ->arrayNode('configurations')
+                                ->prototype('array')
+                                    ->children()
+                                        ->arrayNode('environment')
+                                            ->info('Entornos de ejecución del registro.')
+                                            ->isRequired()
+                                            ->beforeNormalization()->ifString()->then(function ($v) { return [$v]; })->end()
+                                            ->prototype('scalar')->end()
+                                            ->defaultValue([])
+                                        ->end()
+                                        ->scalarNode('origin')
+                                            ->isRequired()
+                                            ->info('Directorio o archivo de origen.')
+                                            ->beforeNormalization()->ifString()->then(function ($v) { return realpath($v); })->end()
+                                        ->end()
+                                        ->scalarNode('destination')
+                                            ->isRequired()
+                                            ->info('Directorio o archivo de destino.')
+                                            ->beforeNormalization()->ifString()->then(function ($v) { return '%kernel.project_dir%/'.ltrim($v, DIRECTORY_SEPARATOR); })->end()
+                                        ->end()
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end();
+        }
+
+        /**
+         * @param ArrayNodeDefinition $rootNode
+         */
+        private function addConfigurationSQLImport(ArrayNodeDefinition $rootNode): void {
+
+            $rootNode->children()
+                    ->arrayNode('sql_import')
+                        ->children()
+                            ->booleanNode('enable')->isRequired()->defaultFalse()->end()
+                            ->arrayNode('configurations')
+                                ->prototype('array')
+                                    ->children()
+                                        ->arrayNode('environment')
+                                            ->info('Entornos de ejecución del registro.')
+                                            ->isRequired()
+                                            ->beforeNormalization()->ifString()->then(function ($v) { return [$v]; })->end()
+                                            ->prototype('scalar')->end()
+                                            ->defaultValue([])
+                                        ->end()
+                                        ->arrayNode('files')
+                                            ->info('Archivos SQL a ejecutar en la base de datos.')
+                                            ->isRequired()
+                                            ->beforeNormalization()->ifString()->then(function ($v) { return [$v]; })->end()
+                                            ->prototype('scalar')->end()
+                                            ->defaultValue([])
+                                        ->end()
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end();
+        }
+
+        /**
+         * @param ArrayNodeDefinition $rootNode
+         */
+        private function addConfigurationCommands(ArrayNodeDefinition $rootNode): void {
+
+            $rootNode->children()
+                    ->arrayNode('commands')
+                        ->children()
+                            ->booleanNode('enable')->isRequired()->defaultFalse()->end()
+                            ->arrayNode('configurations')
+                                ->prototype('array')
+                                    ->children()
+                                        ->arrayNode('environment')
+                                            ->info('Entornos de ejecución del registro.')
+                                            ->isRequired()
+                                            ->beforeNormalization()->ifString()->then(function ($v) { return [$v]; })->end()
+                                            ->prototype('scalar')->end()
+                                            ->defaultValue([])
+                                        ->end()
+                                        ->scalarNode('command')->isRequired()->cannotBeEmpty()->end()
+                                        ->arrayNode('arguments')
+                                            ->info('Argumentos del comando.')
+                                            ->normalizeKeys(false)
+                                            ->prototype('scalar')->end()
+                                            ->defaultValue([])
+                                        ->end()
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end();
+        }
+
+        /**
+         * @param ArrayNodeDefinition $rootNode
+         */
+        private function addConfigurationInstall(ArrayNodeDefinition $rootNode): void {
+
+            $rootNode->children()
+                    ->arrayNode('install')
+                        ->children()
+                            ->booleanNode('enable')->isRequired()->defaultFalse()->end()
+                            ->arrayNode('configurations')
+                                ->prototype('array')
+                                    ->ignoreExtraKeys(false)
+                                    ->beforeNormalization()
+                                        ->castToArray()
+                                    ->end()
+                                    ->validate()
+                                        ->ifTrue(function ($a) {
+                                            if(array_key_exists('type', $a)):
+                                                if ($a['type'] === 'symfony_command'):
+                                                    $this->validateKeysType('symfony_command', $a);
+                                                endif;
+                                            endif;
+                                            return false;
+                                        })
+                                        ->thenInvalid('Se ha presentado un error %s')
+                                    ->end()
+                                    ->children()
+                                        ->arrayNode('environment')
+                                            ->info('Entornos de ejecución del registro.')
+                                            ->isRequired()
+                                            ->beforeNormalization()->ifString()->then(function ($v) { return [$v]; })->end()
+                                            ->prototype('scalar')->end()
+                                            ->defaultValue([])
+                                        ->end()
+                                        ->enumNode('type')->values(['symfony_command'])->isRequired()->end()
+                                        ->booleanNode('enable')->defaultTrue()->isRequired()->end()
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end();
+        }
+
+        /**
+         * Validate key of types node
+         *
+         * @param string $type
+         * @param array $array
+         *
+         * @return void
+         */
+        private function validateKeysType(string $type, array $array = []): void {
+
+            $compare = [
+                'symfony_command' => ['type' => true, 'enable' => true, 'command' => true, 'arguments' => true]
+            ];
+            $result = array_diff_key($compare[$type], $array);
+
+            if (count($result) > 0):
+                throw new \RuntimeException('No se configuraron las propiedades: ['.implode(', ', array_keys($result)).']');
+            endif;
         }
     }
