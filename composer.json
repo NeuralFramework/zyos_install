@@ -26,11 +26,11 @@
     },
     "require": {
         "php": "^7.2.5",
-        "symfony/console": "5.1.*",
-        "symfony/filesystem": "5.1.*",
-        "symfony/http-foundation": "5.1.*",
-        "symfony/process": "5.1.*",
-        "symfony/translation": "5.1.*",
+        "symfony/console": "^5.1.*",
+        "symfony/filesystem": "^5.1.*",
+        "symfony/http-foundation": "^5.1.*",
+        "symfony/process": "^5.1.*",
+        "symfony/translation": "^5.1.*",
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^3.3",
