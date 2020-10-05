@@ -2,8 +2,16 @@
     "name": "zyos/zyos_install",
     "description": "Utilidades de desarrollo de aplicaciones con symfony 5",
     "type": "symfony-bundle",
-    "minimum-stability": "stable",
-    "license": "mit",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "keywords": [
+        "zyos",
+        "install",
+        "zyos_install",
+        "zyosinstallbundle",
+        "zyos_install_bundle"
+    ],
+    "license": "MIT",
     "authors": [
         {
             "name": "Carlos Parra",
