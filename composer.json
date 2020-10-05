@@ -2,7 +2,7 @@
     "name": "zyos/zyos_install",
     "description": "Utilidades de desarrollo de aplicaciones con symfony 5",
     "type": "symfony-bundle",
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "license": "mit",
     "authors": [
         {
@@ -17,9 +17,14 @@
         }
     },
     "require": {
-        "php": "^7.2.5"
+        "php": "^7.2.5",
+        "symfony/console": "5.1.*",
+        "symfony/filesystem": "5.1.*",
+        "symfony/http-foundation": "5.1.*",
+        "symfony/process": "5.1.*",
+        "symfony/translation": "5.1.*",
     },
     "require-dev": {
-        "doctrine/doctrine-fixtures-bundle": "^3.3@dev"
+        "doctrine/doctrine-fixtures-bundle": "^3.3",
     }
 }
