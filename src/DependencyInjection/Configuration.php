@@ -23,262 +23,470 @@
             $treeBuilder = new TreeBuilder('zyos_install');
             $rootNode = $treeBuilder->getRootNode();
 
-            $this->addConfigurationInstall($rootNode);
-            $this->addConfigurationPaths($rootNode);
-            $this->addConfigurationSymlink($rootNode);
-            $this->addConfigurationMirrors($rootNode);
-            $this->addConfigurationDumpConnection($rootNode);
-            $this->addConfigurationSQLImport($rootNode);
-            $this->addConfigurationCommands($rootNode);
+            $this->getConfigTranslation($rootNode);
+            $this->getConfigEnv($rootNode);
+            $this->getConfigPath($rootNode);
+            $this->getConfigInstall($rootNode);
+            $this->getConfigSymlink($rootNode);
+            $this->getConfigMirror($rootNode);
+            $this->getConfigSQL($rootNode);
+            $this->getConfigCLI($rootNode);
+            $this->getConfigValidations($rootNode);
+            $this->getConfigDump($rootNode);
 
             return $treeBuilder;
         }
 
         /**
-         * @param ArrayNodeDefinition $rootNode
-         */
-        private function addConfigurationDumpConnection(ArrayNodeDefinition $rootNode): void {
-
-            $rootNode->children()
-                    ->arrayNode('dump')
-                        ->children()
-                            ->booleanNode('enable')->defaultTrue()->end()
-                            ->arrayNode('connections')
-                                ->useAttributeAsKey('name')
-                                ->prototype('array')
-                                    ->children()
-                                        ->enumNode('client')->values(['mysqldump'])->end()
-                                        ->scalarNode('host')->isRequired()->cannotBeEmpty()->defaultNull()->end()
-                                        ->integerNode('port')->defaultValue('3306')->end()
-                                        ->scalarNode('username')->isRequired()->cannotBeEmpty()->end()
-                                        ->scalarNode('password')->isRequired()->cannotBeEmpty()->end()
-                                        ->scalarNode('database')->isRequired()->cannotBeEmpty()->end()
-                                    ->end()
-                                ->end()
-                            ->end()
-                        ->end()
-                    ->end()
-                ->end();
-        }
-
-        /**
-         * @param ArrayNodeDefinition $rootNode
-         */
-        private function addConfigurationPaths(ArrayNodeDefinition $rootNode): void {
-
-            $rootNode->children()
-                    ->arrayNode('paths')
-                        ->children()
-                            ->scalarNode('local')->isRequired()->cannotBeEmpty()->end()
-                            ->scalarNode('dump')->isRequired()->cannotBeEmpty()->end()
-                            ->scalarNode('sql')->isRequired()->cannotBeEmpty()->end()
-                        ->end()
-                    ->end()
-                ->end();
-        }
-
-        /**
-         * @param ArrayNodeDefinition $rootNode
-         */
-        private function addConfigurationSymlink(ArrayNodeDefinition $rootNode): void {
-
-            $rootNode->children()
-                    ->arrayNode('symlinks')
-                        ->children()
-                            ->booleanNode('enable')->isRequired()->defaultFalse()->end()
-                            ->arrayNode('configurations')
-                                ->prototype('array')
-                                    ->children()
-                                        ->arrayNode('environment')
-                                            ->info('Entornos de ejecución del registro.')
-                                            ->beforeNormalization()->ifString()->then(function ($v) { return [$v]; })->end()
-                                            ->prototype('scalar')->end()
-                                            ->defaultValue([])
-                                        ->end()
-                                        ->scalarNode('origin')
-                                            ->isRequired()
-                                            ->info('Directorio o archivo de origen.')
-                                            ->beforeNormalization()->ifString()->then(function ($v) { return realpath($v); })->end()
-                                        ->end()
-                                        ->scalarNode('destination')
-                                            ->isRequired()
-                                            ->info('Directorio o archivo de destino.')
-                                            ->beforeNormalization()->ifString()->then(function ($v) { return '%kernel.project_dir%/'.ltrim($v, DIRECTORY_SEPARATOR); })->end()
-                                        ->end()
-                                    ->end()
-                                ->end()
-                            ->end()
-                        ->end()
-                    ->end()
-                ->end();
-        }
-
-        /**
-         * @param ArrayNodeDefinition $rootNode
-         */
-        private function addConfigurationMirrors(ArrayNodeDefinition $rootNode): void {
-
-            $rootNode->children()
-                    ->arrayNode('mirrors')
-                        ->children()
-                            ->booleanNode('enable')->isRequired()->defaultFalse()->end()
-                            ->arrayNode('configurations')
-                                ->prototype('array')
-                                    ->children()
-                                        ->arrayNode('environment')
-                                            ->info('Entornos de ejecución del registro.')
-                                            ->isRequired()
-                                            ->beforeNormalization()->ifString()->then(function ($v) { return [$v]; })->end()
-                                            ->prototype('scalar')->end()
-                                            ->defaultValue([])
-                                        ->end()
-                                        ->scalarNode('origin')
-                                            ->isRequired()
-                                            ->info('Directorio o archivo de origen.')
-                                            ->beforeNormalization()->ifString()->then(function ($v) { return realpath($v); })->end()
-                                        ->end()
-                                        ->scalarNode('destination')
-                                            ->isRequired()
-                                            ->info('Directorio o archivo de destino.')
-                                            ->beforeNormalization()->ifString()->then(function ($v) { return '%kernel.project_dir%/'.ltrim($v, DIRECTORY_SEPARATOR); })->end()
-                                        ->end()
-                                    ->end()
-                                ->end()
-                            ->end()
-                        ->end()
-                    ->end()
-                ->end();
-        }
-
-        /**
-         * @param ArrayNodeDefinition $rootNode
-         */
-        private function addConfigurationSQLImport(ArrayNodeDefinition $rootNode): void {
-
-            $rootNode->children()
-                    ->arrayNode('sql_import')
-                        ->children()
-                            ->booleanNode('enable')->isRequired()->defaultFalse()->end()
-                            ->arrayNode('configurations')
-                                ->prototype('array')
-                                    ->children()
-                                        ->arrayNode('environment')
-                                            ->info('Entornos de ejecución del registro.')
-                                            ->isRequired()
-                                            ->beforeNormalization()->ifString()->then(function ($v) { return [$v]; })->end()
-                                            ->prototype('scalar')->end()
-                                            ->defaultValue([])
-                                        ->end()
-                                        ->arrayNode('files')
-                                            ->info('Archivos SQL a ejecutar en la base de datos.')
-                                            ->isRequired()
-                                            ->beforeNormalization()->ifString()->then(function ($v) { return [$v]; })->end()
-                                            ->prototype('scalar')->end()
-                                            ->defaultValue([])
-                                        ->end()
-                                    ->end()
-                                ->end()
-                            ->end()
-                        ->end()
-                    ->end()
-                ->end();
-        }
-
-        /**
-         * @param ArrayNodeDefinition $rootNode
-         */
-        private function addConfigurationCommands(ArrayNodeDefinition $rootNode): void {
-
-            $rootNode->children()
-                    ->arrayNode('commands')
-                        ->children()
-                            ->booleanNode('enable')->isRequired()->defaultFalse()->end()
-                            ->arrayNode('configurations')
-                                ->prototype('array')
-                                    ->children()
-                                        ->arrayNode('environment')
-                                            ->info('Entornos de ejecución del registro.')
-                                            ->isRequired()
-                                            ->beforeNormalization()->ifString()->then(function ($v) { return [$v]; })->end()
-                                            ->prototype('scalar')->end()
-                                            ->defaultValue([])
-                                        ->end()
-                                        ->scalarNode('command')->isRequired()->cannotBeEmpty()->end()
-                                        ->arrayNode('arguments')
-                                            ->info('Argumentos del comando.')
-                                            ->normalizeKeys(false)
-                                            ->prototype('scalar')->end()
-                                            ->defaultValue([])
-                                        ->end()
-                                    ->end()
-                                ->end()
-                            ->end()
-                        ->end()
-                    ->end()
-                ->end();
-        }
-
-        /**
-         * @param ArrayNodeDefinition $rootNode
-         */
-        private function addConfigurationInstall(ArrayNodeDefinition $rootNode): void {
-
-            $rootNode->children()
-                    ->arrayNode('install')
-                        ->children()
-                            ->booleanNode('enable')->isRequired()->defaultFalse()->end()
-                            ->arrayNode('configurations')
-                                ->prototype('array')
-                                    ->ignoreExtraKeys(false)
-                                    ->beforeNormalization()
-                                        ->castToArray()
-                                    ->end()
-                                    ->validate()
-                                        ->ifTrue(function ($a) {
-                                            if(array_key_exists('type', $a)):
-                                                if ($a['type'] === 'symfony_command'):
-                                                    $this->validateKeysType('symfony_command', $a);
-                                                endif;
-                                            endif;
-                                            return false;
-                                        })
-                                        ->thenInvalid('Se ha presentado un error %s')
-                                    ->end()
-                                    ->children()
-                                        ->arrayNode('environment')
-                                            ->info('Entornos de ejecución del registro.')
-                                            ->isRequired()
-                                            ->beforeNormalization()->ifString()->then(function ($v) { return [$v]; })->end()
-                                            ->prototype('scalar')->end()
-                                            ->defaultValue([])
-                                        ->end()
-                                        ->enumNode('type')->values(['symfony_command'])->isRequired()->end()
-                                        ->booleanNode('enable')->defaultTrue()->isRequired()->end()
-                                    ->end()
-                                ->end()
-                            ->end()
-                        ->end()
-                    ->end()
-                ->end();
-        }
-
-        /**
-         * Validate key of types node
+         * return configuration translations
          *
-         * @param string $type
-         * @param array $array
+         * @param ArrayNodeDefinition $rootNode
          *
          * @return void
          */
-        private function validateKeysType(string $type, array $array = []): void {
+        private function getConfigTranslation(ArrayNodeDefinition $rootNode): void {
 
-            $compare = [
-                'symfony_command' => ['type' => true, 'enable' => true, 'command' => true, 'arguments' => true]
-            ];
-            $result = array_diff_key($compare[$type], $array);
+            $rootNode
+                ->children()
+                    ->enumNode('translation')
+                        ->info('Traducción de texto / Texts translations')
+                        ->values(['es', 'en'])
+                        ->defaultValue('es')
+                    ->end()
+                ->end();
+        }
 
-            if (count($result) > 0):
-                throw new \RuntimeException('No se configuraron las propiedades: ['.implode(', ', array_keys($result)).']');
-            endif;
+        /**
+         * Return list environments
+         *
+         * @param ArrayNodeDefinition $rootNode
+         *
+         * @return void
+         */
+        private function getConfigEnv(ArrayNodeDefinition $rootNode): void {
+
+            $rootNode
+                ->children()
+                    ->arrayNode('environments')
+                        ->info('Entornos de aplicación / Environments Application')
+                        ->beforeNormalization()
+                            ->ifString()->then(function ($v) { return empty($v) ? ['dev', 'prod'] : [$v]; })
+                        ->end()
+                        ->prototype('scalar')->end()
+                        ->defaultValue(['dev', 'prod'])
+                        ->requiresAtLeastOneElement()
+                    ->end()
+                ->end();
+        }
+
+        /**
+         * Return path install
+         *
+         * @param ArrayNodeDefinition $rootNode
+         *
+         * @return void
+         */
+        private function getConfigPath(ArrayNodeDefinition $rootNode): void {
+
+            $rootNode
+                ->children()
+                    ->scalarNode('path')
+                        ->info('Path de configuración / Path configuration')
+                        ->beforeNormalization()
+                            ->ifEmpty()->then(function ($v) { return '%kernel.project_dir%/src/Resources/install'; })
+                        ->end()
+                        ->defaultValue('%kernel.project_dir%/src/Resources/install')
+                    ->end()
+                ->end();
+        }
+
+        /**
+         * Return install configuration
+         *
+         * @param ArrayNodeDefinition $rootNode
+         *
+         * @return void
+         */
+        private function getConfigInstall(ArrayNodeDefinition $rootNode): void {
+
+            $rootNode
+                ->children()
+                    ->arrayNode('install')
+                        ->info('Comandos de Instalación / Install Commands')
+                        ->beforeNormalization()
+                            ->ifEmpty()->then(function ($v) { return ['enable' => false, 'commands' => []]; })
+                        ->end()
+                        ->treatNullLike(['enable' => false, 'commands' => []])
+                        ->children()
+                            ->booleanNode('enable')->defaultFalse()->end()
+                            ->arrayNode('commands')
+                                ->beforeNormalization()
+                                    ->ifEmpty()->then(function ($v) { return []; })
+                                ->end()
+                                ->treatNullLike([])
+                                ->prototype('array')
+                                    ->validate()
+                                        ->always(function ($v) {
+                                            if (!array_key_exists('arguments', $v)) {
+                                                $v['arguments'] = [];
+                                            }
+                                            return $v;
+                                        })
+                                    ->end()
+                                    ->children()
+
+                                        ->booleanNode('enable')
+                                            ->defaultFalse()
+                                            ->isRequired()
+                                        ->end()
+                                        ->append($this->getFieldEnvironments())
+                                        ->scalarNode('command')
+                                            ->isRequired()
+                                            ->cannotBeEmpty()
+                                        ->end()
+                                        ->arrayNode('arguments')
+                                            ->info('Argumentos del comando.')
+                                            ->normalizeKeys(false)
+                                            ->ignoreExtraKeys(false)
+                                            ->beforeNormalization()
+                                                ->ifEmpty()->then(function ($v) { return []; })
+                                            ->end()
+                                            ->treatNullLike([])
+                                            ->treatFalseLike([])
+                                        ->end()
+
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end();
+        }
+
+        /**
+         * Return symlink configuration
+         *
+         * @param ArrayNodeDefinition $rootNode
+         *
+         * @return void
+         */
+        private function getConfigSymlink(ArrayNodeDefinition $rootNode): void {
+
+            $rootNode
+                ->children()
+                    ->arrayNode('symlink')
+                        ->info('Creación de Symlinks / Create Symlinks')
+                        ->beforeNormalization()
+                            ->ifEmpty()->then(function ($v) { return ['enable' => false, 'lockable' => true, 'commands' => []]; })
+                        ->end()
+                        ->treatNullLike(['enable' => false, 'lockable' => true, 'commands' => []])
+                        ->children()
+                            ->booleanNode('enable')->defaultFalse()->end()
+                            ->booleanNode('lockable')->defaultTrue()->end()
+                            ->arrayNode('commands')
+                                ->beforeNormalization()
+                                    ->ifEmpty()->then(function ($v) { return []; })
+                                ->end()
+                                ->treatNullLike([])
+                                ->prototype('array')
+                                    ->children()
+
+                                        ->booleanNode('enable')
+                                            ->defaultFalse()
+                                            ->isRequired()
+                                        ->end()
+                                        ->append($this->getFieldEnvironments())
+                                        ->scalarNode('origin')
+                                            ->isRequired()
+                                            ->beforeNormalization()
+                                                ->ifString()->then(function ($v) { return realpath($v); })
+                                            ->end()
+                                        ->end()
+                                        ->scalarNode('destination')
+                                            ->isRequired()
+                                            ->beforeNormalization()
+                                                ->ifString()->then(function ($v) { return '%kernel.project_dir%/'.ltrim($v, DIRECTORY_SEPARATOR); })
+                                            ->end()
+                                        ->end()
+
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end();
+        }
+
+        /**
+         * Return mirror configuration
+         *
+         * @param ArrayNodeDefinition $rootNode
+         *
+         * @return void
+         */
+        private function getConfigMirror(ArrayNodeDefinition $rootNode): void {
+
+            $rootNode
+                ->children()
+                    ->arrayNode('mirror')
+                        ->info('Creación de Mirror / Create Mirror')
+                        ->beforeNormalization()
+                            ->ifEmpty()->then(function ($v) { return ['enable' => false, 'lockable' => true, 'commands' => []]; })
+                        ->end()
+                        ->treatNullLike(['enable' => false, 'lockable' => true, 'commands' => []])
+                        ->children()
+                            ->booleanNode('enable')->defaultFalse()->end()
+                            ->booleanNode('lockable')->defaultTrue()->end()
+                            ->arrayNode('commands')
+                                ->beforeNormalization()
+                                    ->ifEmpty()->then(function ($v) { return []; })
+                                ->end()
+                                ->treatNullLike([])
+                                ->prototype('array')
+                                    ->children()
+
+                                        ->booleanNode('enable')
+                                            ->defaultFalse()
+                                            ->isRequired()
+                                        ->end()
+                                        ->append($this->getFieldEnvironments())
+                                        ->scalarNode('origin')
+                                            ->isRequired()
+                                            ->beforeNormalization()
+                                                ->ifString()->then(function ($v) { return realpath($v); })
+                                            ->end()
+                                        ->end()
+                                        ->scalarNode('destination')
+                                            ->isRequired()
+                                            ->beforeNormalization()
+                                                ->ifString()->then(function ($v) { return '%kernel.project_dir%/'.ltrim($v, DIRECTORY_SEPARATOR); })
+                                            ->end()
+                                        ->end()
+
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end();
+        }
+
+        /**
+         * Get configuration sql
+         *
+         * @param ArrayNodeDefinition $rootNode
+         *
+         * @return void
+         */
+        private function getConfigSQL(ArrayNodeDefinition $rootNode): void {
+
+            $rootNode
+                ->children()
+                    ->arrayNode('sql')
+                        ->info('Cargar Archivos SQL / Load SQL files')
+                        ->beforeNormalization()
+                            ->ifEmpty()->then(function ($v) { return ['enable' => false, 'lockable' => true, 'commands' => []]; })
+                        ->end()
+                        ->treatNullLike(['enable' => false, 'lockable' => true, 'commands' => []])
+                        ->children()
+                            ->booleanNode('enable')->defaultFalse()->end()
+                            ->booleanNode('lockable')->defaultTrue()->end()
+                            ->arrayNode('commands')
+                                ->beforeNormalization()
+                                    ->ifEmpty()->then(function ($v) { return []; })
+                                ->end()
+                                ->treatNullLike([])
+                                ->prototype('array')
+                                    ->children()
+
+                                        ->booleanNode('enable')->defaultFalse()->isRequired()->end()
+                                        ->append($this->getFieldEnvironments())
+                                        ->scalarNode('connection')
+                                            ->defaultNull()
+                                        ->end()
+                                        ->arrayNode('files')
+                                            ->beforeNormalization()
+                                                ->ifString()->then(function ($v) { return empty($v) ? [] : [$v]; })
+                                            ->end()
+                                            ->prototype('scalar')->end()
+                                            ->isRequired()
+                                            ->defaultValue([])
+                                            ->requiresAtLeastOneElement()
+                                        ->end()
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end();
+        }
+
+        /**
+         * Get configuration terminal
+         *
+         * @param ArrayNodeDefinition $rootNode
+         *
+         * @return void
+         */
+        private function getConfigCLI(ArrayNodeDefinition $rootNode): void {
+
+            $rootNode
+                ->children()
+                    ->arrayNode('cli')
+                        ->info('Ejecutar Comandos en terminal / Execute commands in terminal')
+                        ->beforeNormalization()
+                            ->ifEmpty()->then(function ($v) { return ['enable' => false, 'lockable' => true, 'commands' => []]; })
+                        ->end()
+                        ->treatNullLike(['enable' => false, 'lockable' => true, 'commands' => []])
+                        ->children()
+                            ->booleanNode('enable')->defaultFalse()->end()
+                            ->booleanNode('lockable')->defaultTrue()->end()
+                            ->arrayNode('commands')
+                                ->beforeNormalization()
+                                    ->ifEmpty()->then(function ($v) { return []; })
+                                ->end()
+                                ->treatNullLike([])
+                                ->prototype('array')
+                                    ->children()
+
+                                        ->booleanNode('enable')->defaultFalse()->isRequired()->end()
+                                        ->append($this->getFieldEnvironments())
+                                        ->scalarNode('command')
+                                            ->cannotBeEmpty()
+                                            ->isRequired()
+                                            ->defaultNull()
+                                        ->end()
+
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end();
+        }
+
+        /**
+         * Get configuration validations
+         *
+         * @param ArrayNodeDefinition $rootNode
+         *
+         * @return void
+         */
+        private function getConfigValidations(ArrayNodeDefinition $rootNode): void {
+
+            $rootNode
+                ->children()
+                    ->arrayNode('validation')
+                        ->info('Ejecutar Validaciones / Execute validations')
+                        ->beforeNormalization()
+                            ->ifEmpty()->then(function ($v) { return ['enable' => false, 'lockable' => true, 'commands' => []]; })
+                        ->end()
+                        ->treatNullLike(['enable' => false, 'lockable' => true, 'commands' => []])
+                        ->children()
+                            ->booleanNode('enable')->defaultFalse()->end()
+                            ->booleanNode('lockable')->defaultTrue()->end()
+                            ->arrayNode('commands')
+                                ->beforeNormalization()
+                                    ->ifEmpty()->then(function ($v) { return []; })
+                                ->end()
+                                ->treatNullLike([])
+                                ->prototype('array')
+                                    ->children()
+
+                                        ->booleanNode('enable')->defaultFalse()->isRequired()->end()
+                                        ->append($this->getFieldEnvironments())
+                                        ->scalarNode('filepath')
+                                            ->cannotBeEmpty()
+                                            ->isRequired()
+                                            ->defaultNull()
+                                        ->end()
+                                        ->arrayNode('validations')
+                                            ->beforeNormalization()
+                                                ->ifEmpty()->then(function ($v) { return []; })
+                                                ->ifString()->then(function ($v) { return empty($v) ? [] : [$v]; })
+                                            ->end()
+                                            ->prototype('scalar')->end()
+                                            ->treatNullLike([])
+                                            ->cannotBeEmpty()
+                                            ->isRequired()
+                                            ->requiresAtLeastOneElement()
+                                        ->end()
+
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end();
+        }
+
+        /**
+         * get configuration dump
+         * @param ArrayNodeDefinition $rootNode
+         *
+         * @return void
+         */
+        private function getConfigDump(ArrayNodeDefinition $rootNode): void {
+
+            $rootNode
+                ->children()
+                    ->arrayNode('export')
+                        ->info('Exportar Base de Datos / Dump database')
+                        ->beforeNormalization()
+                            ->ifEmpty()->then(function ($v) { return ['enable' => false, 'commands' => []]; })
+                        ->end()
+                        ->treatNullLike(['enable' => false, 'commands' => []])
+                        ->children()
+                            ->booleanNode('enable')->defaultFalse()->end()
+                            ->arrayNode('commands')
+                                ->beforeNormalization()
+                                    ->ifEmpty()->then(function ($v) { return []; })
+                                ->end()
+                                ->useAttributeAsKey('name')
+                                ->prototype('array')
+                                    ->children()
+                                        ->booleanNode('enable')->defaultFalse()->end()
+                                        ->booleanNode('lockable')->defaultTrue()->end()
+                                        ->arrayNode('params')
+                                            ->isRequired()
+                                            ->children()
+                                                ->enumNode('client')->isRequired()->values(['mysqldump'])->end()
+                                                ->scalarNode('host')->isRequired()->cannotBeEmpty()->defaultNull()->end()
+                                                ->integerNode('port')->defaultNull()->end()
+                                                ->scalarNode('username')->isRequired()->cannotBeEmpty()->end()
+                                                ->scalarNode('password')->isRequired()->cannotBeEmpty()->end()
+                                                ->scalarNode('database')->isRequired()->cannotBeEmpty()->end()
+                                            ->end()
+                                        ->end()
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end();
+        }
+
+        /**
+         * Get field Env configuration
+         *
+         * @return ArrayNodeDefinition|\Symfony\Component\Config\Definition\Builder\NodeDefinition
+         */
+        private function getFieldEnvironments() {
+
+            $treeBuilder = new TreeBuilder('env');
+            $node = $treeBuilder->getRootNode();
+
+            $node
+                ->info('Entornos Disponibles para Ejecutar')
+                ->beforeNormalization()
+                    ->ifEmpty()->then(function ($v) { return []; })
+                    ->ifString()->then(function ($v) { return empty($v) ? [] : [$v]; })
+                ->end()
+                ->prototype('scalar')->end()
+                ->cannotBeEmpty()
+                ->isRequired()
+                ->requiresAtLeastOneElement();
+
+            return $node;
         }
     }

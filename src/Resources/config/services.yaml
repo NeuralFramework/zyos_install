@@ -9,5 +9,5 @@ services:
     # this creates a service per class whose id is the fully-qualified class name
     ZyosInstallBundle\:
         resource: '../../../src/*'
-        exclude: '../../../src/{DependencyInjection,Entity,Export,Migrations,Tests,Kernel.php}'
+        exclude: '../../../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
         public: false

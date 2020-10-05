@@ -1,0 +1,184 @@
+<?xml version="1.0"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="es" datatype="plaintext" original="file.ext">
+        <body>
+            <trans-unit id="1">
+                <source>Comando no disponible, Bloqueado</source>
+                <target>Comando no disponible, Bloqueado</target>
+            </trans-unit>
+            <trans-unit id="2">
+                <source>Comando no disponible, Desactivado</source>
+                <target>Comando no disponible, Desactivado</target>
+            </trans-unit>
+            <trans-unit id="3">
+                <source>Entorno No Valido: %env%</source>
+                <target>Entorno No Valido: %env%</target>
+            </trans-unit>
+            <trans-unit id="4">
+                <source>No Hay Comandos para Ejecutar, Cantidad: %count%</source>
+                <target>No Hay Comandos para Ejecutar, Cantidad: %count%</target>
+            </trans-unit>
+            <trans-unit id="5">
+                <source>No Hay Comandos Activos para Ejecutar</source>
+                <target>No Hay Comandos Activos para Ejecutar</target>
+            </trans-unit>
+            <trans-unit id="6">
+                <source>No Hay Comandos con el Entorno Solicitado: %env%</source>
+                <target>No Hay Comandos con el Entorno Solicitado: %env%</target>
+            </trans-unit>
+            <trans-unit id="7">
+                <source>Se han ejecutado: %count% comandos</source>
+                <target>Se han ejecutado: %count% comandos</target>
+            </trans-unit>
+            <trans-unit id="8">
+                <source>Se ha finalizado el proceso de ejecución de comandos</source>
+                <target>Se ha finalizado el proceso de ejecución de comandos</target>
+            </trans-unit>
+            <trans-unit id="9">
+                <source>Se ha creado el bloqueo de instalación correctamente</source>
+                <target>Se ha creado el bloqueo de instalación correctamente</target>
+            </trans-unit>
+            <trans-unit id="10">
+                <source>No es posible crear el bloqueo de instalación para entorno de producción</source>
+                <target>No es posible crear el bloqueo de instalación para entorno de producción</target>
+            </trans-unit>
+            <trans-unit id="11">
+                <source>No es posible crear la estructura en la ruta: %path%</source>
+                <target>No es posible crear la estructura en la ruta: %path%</target>
+            </trans-unit>
+            <trans-unit id="12">
+                <source>Origen</source>
+                <target>Origen</target>
+            </trans-unit>
+            <trans-unit id="13">
+                <source>Destino</source>
+                <target>Destino</target>
+            </trans-unit>
+            <trans-unit id="14">
+                <source>Existe</source>
+                <target>Existe</target>
+            </trans-unit>
+            <trans-unit id="15">
+                <source>Se puede escribir</source>
+                <target>Se puede escribir</target>
+            </trans-unit>
+            <trans-unit id="16">
+                <source>Propiedades del Origen</source>
+                <target>Propiedades del Origen</target>
+            </trans-unit>
+            <trans-unit id="17">
+                <source>Se puede leer</source>
+                <target>Se puede leer</target>
+            </trans-unit>
+            <trans-unit id="18">
+                <source>Propiedades del Destino</source>
+                <target>Propiedades del Destino</target>
+            </trans-unit>
+            <trans-unit id="19">
+                <source>Creando el symlink</source>
+                <target>Creando el symlink</target>
+            </trans-unit>
+            <trans-unit id="20">
+                <source>Se ha creado el symlink correctamente</source>
+                <target>Se ha creado el symlink correctamente</target>
+            </trans-unit>
+            <trans-unit id="21">
+                <source>Se ha presentado un error, no es posible crear el symlink</source>
+                <target>Se ha presentado un error, no es posible crear el symlink</target>
+            </trans-unit>
+            <trans-unit id="22">
+                <source>Creando el mirror</source>
+                <target>Creando el mirror</target>
+            </trans-unit>
+            <trans-unit id="23">
+                <source>Se ha creado el mirror correctamente</source>
+                <target>Se ha creado el mirror correctamente</target>
+            </trans-unit>
+            <trans-unit id="24">
+                <source>Se ha presentado un error, no es posible crear el mirror</source>
+                <target>Se ha presentado un error, no es posible crear el mirror</target>
+            </trans-unit>
+            <trans-unit id="25">
+                <source>No hay archivos SQL para cargar</source>
+                <target>No hay archivos SQL para cargar</target>
+            </trans-unit>
+            <trans-unit id="26">
+                <source>Único</source>
+                <target>Único</target>
+            </trans-unit>
+            <trans-unit id="27">
+                <source>Cargando Archivo: %file%</source>
+                <target>Cargando Archivo: %file%</target>
+            </trans-unit>
+            <trans-unit id="28">
+                <source>Archivo</source>
+                <target>Archivo</target>
+            </trans-unit>
+            <trans-unit id="29">
+                <source>No Existe</source>
+                <target>No Existe</target>
+            </trans-unit>
+            <trans-unit id="30">
+                <source>El directorio o archivo de origen no existe</source>
+                <target>El directorio o archivo de origen no existe</target>
+            </trans-unit>
+            <trans-unit id="31">
+                <source>El symlink no es posible crearlo</source>
+                <target>El symlink no es posible crearlo</target>
+            </trans-unit>
+            <trans-unit id="32">
+                <source>El mirror no es posible crearlo</source>
+                <target>El mirror no es posible crearlo</target>
+            </trans-unit>
+            <trans-unit id="33">
+                <source>Ejecución Finalizada</source>
+                <target>Ejecución Finalizada</target>
+            </trans-unit>
+            <trans-unit id="34">
+                <source>Validaciones del Recurso</source>
+                <target>Validaciones del Recurso</target>
+            </trans-unit>
+            <trans-unit id="35">
+                <source>La validación: %validation% No existe</source>
+                <target>La validación: %validation% No existe</target>
+            </trans-unit>
+            <trans-unit id="36">
+                <source>Existencia del recurso</source>
+                <target>Existencia del recurso</target>
+            </trans-unit>
+            <trans-unit id="37">
+                <source>Es un archivo</source>
+                <target>Es un archivo</target>
+            </trans-unit>
+            <trans-unit id="38">
+                <source>Es un directorio</source>
+                <target>Es un directorio</target>
+            </trans-unit>
+            <trans-unit id="39">
+                <source>Es un enlace simbolico</source>
+                <target>Es un enlace simbolico</target>
+            </trans-unit>
+            <trans-unit id="40">
+                <source>Es un ejecutable</source>
+                <target>Es un ejecutable</target>
+            </trans-unit>
+            <trans-unit id="41">
+                <source>El archivo fue subido mediante HTTP POST</source>
+                <target>El archivo fue subido mediante HTTP POST</target>
+            </trans-unit>
+            <trans-unit id="42">
+                <source>No es posible ejecutar el comando de instalación en el mismo comando</source>
+                <target>No es posible ejecutar el comando de instalación en el mismo comando</target>
+            </trans-unit>
+            <trans-unit id="43">
+                <source>La configuración: %config% No Existe</source>
+                <target>La configuración: %config% No Existe</target>
+            </trans-unit>
+            <trans-unit id="44">
+                <source>El comando %command% No se encuentra activo</source>
+                <target>El comando %command% No se encuentra activo</target>
+            </trans-unit>
+
+        </body>
+    </file>
+</xliff>

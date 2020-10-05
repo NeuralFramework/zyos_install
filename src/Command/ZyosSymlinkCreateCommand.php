@@ -3,27 +3,34 @@
      * Created by PhpStorm (Carlos Parra).
      * User: zyos
      * Email: neural.framework@gmail.com
-     * Date: 24/09/20
-     * Time: 09:45 AM
+     * Date: 29/09/20
+     * Time: 07:38 PM
      */
     namespace ZyosInstallBundle\Command;
 
     use Symfony\Component\Console\Command\Command;
-    use Symfony\Component\Console\Input\ArrayInput;
     use Symfony\Component\Console\Input\InputArgument;
     use Symfony\Component\Console\Input\InputInterface;
     use Symfony\Component\Console\Output\OutputInterface;
     use Symfony\Component\Console\Style\SymfonyStyle;
+    use Symfony\Component\Filesystem\Exception\ExceptionInterface;
+    use Symfony\Component\Filesystem\Exception\IOException;
+    use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
+    use Symfony\Component\Filesystem\Filesystem;
     use Symfony\Component\HttpFoundation\ParameterBag;
     use ZyosInstallBundle\Service\Parameters;
-    use ZyosInstallBundle\Service\Translations;
 
     /**
-     * Class ZyosInstallCommand
+     * Class ZyosSymlinkCommand
      *
      * @package ZyosInstallBundle\Command
      */
-    class ZyosInstallCommand extends Command {
+    class ZyosSymlinkCreateCommand extends Command {
+
+        /**
+         * @var Filesystem
+         */
+        private $filesystem;
 
         /**
          * @var Parameters
@@ -31,18 +38,19 @@
         private $parameters;
 
         /**
-         * ZyosInstallCommand constructor.
+         * ZyosSymlinkCommand constructor.
          *
-         * @param string|null  $name
-         * @param Parameters   $parameters
-         * @param Translations $translations
+         * @param string|null $name
+         * @param Filesystem  $filesystem
+         * @param Parameters  $parameters
          */
-        function __construct(?string $name = null, Parameters $parameters) {
+        function __construct(?string $name = null, Filesystem $filesystem, Parameters $parameters) {
 
             parent::__construct($name);
+            $this->filesystem = $filesystem;
             $this->parameters = $parameters;
-            $this->setHidden($this->parameters->existsLockFile());
-            $this->setHelp($this->parameters->translateHelp('zyos.install.help'));
+            $this->setHidden($this->parameters->hiddenSymlink());
+            $this->setHelp($this->parameters->translateHelp('zyos.symlink.create.help'));
         }
 
         /**
@@ -52,8 +60,8 @@
          */
         protected function configure(): void {
 
-            $this->setName('zyos:install');
-            $this->setDescription('Genera el proceso de instalación o despliegue de la aplicación');
+            $this->setName('zyos:create:symlink');
+            $this->setDescription('Genera la creación de enlaces simbolicos para la aplicación');
             $this->addArgument('environment', InputArgument::OPTIONAL, 'Entorno a ejecutar', 'dev');
         }
 
@@ -66,17 +74,53 @@
          * @return int
          */
         protected function execute(InputInterface $input, OutputInterface $output): int {
-            
+
             $environment = $input->getArgument('environment');
             $io = new SymfonyStyle($input, $output);
 
             if ($this->parameters->structure()):
-                $this->validateExistsLockFile($io, $output, $environment);
+                $this->validateEnable($io, $output, $environment);
             else:
                 $io->error($this->parameters->translate('No es posible crear la estructura en la ruta: %path%', ['%path%' => $this->parameters->getPath()]));
             endif;
 
             return 0;
+        }
+
+        /**
+         * Validate enable command
+         *
+         * @param SymfonyStyle    $io
+         * @param OutputInterface $output
+         * @param string          $environment
+         *
+         * @return void
+         */
+        private function validateEnable(SymfonyStyle $io, OutputInterface $output, string $environment): void {
+
+            if ($this->parameters->enableSymlink()):
+                $this->validateLockable($io, $output, $environment);
+            else:
+                $io->error($this->parameters->translate('Comando no disponible, Desactivado'));
+            endif;
+        }
+
+        /**
+         * Validate is loackable
+         *
+         * @param SymfonyStyle    $io
+         * @param OutputInterface $output
+         * @param string          $environment
+         *
+         * @return void
+         */
+        private function validateLockable(SymfonyStyle $io, OutputInterface $output, string $environment): void {
+
+            if ($this->parameters->lockableSymlink()):
+                $this->validateExistsLockFile($io, $output, $environment);
+            else:
+                $this->validateEnvironment($io, $output, $environment);
+            endif;
         }
 
         /**
@@ -91,27 +135,9 @@
         private function validateExistsLockFile(SymfonyStyle $io, OutputInterface $output, string $environment): void {
 
             if (!$this->parameters->existsLockFile()):
-                $this->validateEnable($io, $output, $environment);
-            else:
-                $io->error($this->parameters->translate('Comando no disponible, Bloqueado'));
-            endif;
-        }
-
-        /**
-         * Validate enable command
-         *
-         * @param SymfonyStyle    $io
-         * @param OutputInterface $output
-         * @param string          $environment
-         *
-         * @return void
-         */
-        private function validateEnable(SymfonyStyle $io, OutputInterface $output, string $environment): void {
-
-            if ($this->parameters->enableInstall()):
                 $this->validateEnvironment($io, $output, $environment);
             else:
-                $io->error($this->parameters->translate('Comando no disponible, Desactivado'));
+                $io->error($this->parameters->translate('Comando no disponible, Bloqueado'));
             endif;
         }
 
@@ -142,35 +168,12 @@
          */
         private function validateCount(SymfonyStyle $io, OutputInterface $output, string $environment): void {
 
-            $params = $this->parameters->getInstall();
+            $params = $this->parameters->getSymlink();
 
             if ($params->count() > 0):
-                $this->validateCycle($io, $output, $environment, $params);
+                $this->validateEnableCommands($io, $output, $environment, $params);
             else:
                 $io->error($this->parameters->translate('No Hay Comandos para Ejecutar, Cantidad: %count%', ['%count%' => $params->count()]));
-            endif;
-        }
-
-        /**
-         * Valldate cicle command
-         *
-         * @param SymfonyStyle    $io
-         * @param OutputInterface $output
-         * @param string          $environment
-         * @param ParameterBag    $parameterBag
-         *
-         * @return void
-         */
-        private function validateCycle(SymfonyStyle $io, OutputInterface $output, string $environment, ParameterBag $parameterBag): void {
-
-            $array = array_filter($parameterBag->all(), function ($configuration) {
-                return trim($configuration['command']) == $this->getName();
-            });
-
-            if (count($array) > 0):
-                $io->error($this->parameters->translate('No es posible ejecutar el comando de instalación en el mismo comando'));
-            else:
-                $this->validateEnableCommands($io, $output, $environment, $parameterBag);
             endif;
         }
 
@@ -199,7 +202,7 @@
 
         /**
          * Get commands environment selected
-         * 
+         *
          * @param SymfonyStyle    $io
          * @param OutputInterface $output
          * @param string          $environment
@@ -232,54 +235,51 @@
          */
         private function iterateCommands(SymfonyStyle $io, OutputInterface $output, string $environment, array $array = []): void {
 
+            $io->newLine(1);
+
             foreach ($array AS $item):
-                $this->executeCommands($output, $environment, $item['command'], $item['arguments']);
+                $this->validateSymlink($io, $output, $item['origin'], $item['destination']);
             endforeach;
 
             $io->newLine(2);
             $io->text($this->parameters->translate('Se han ejecutado: %count% comandos', ['%count%' => count($array)]));
             $io->success($this->parameters->translate('Se ha finalizado el proceso de ejecución de comandos'));
-
-            if ('prod' === $environment):
-                $this->createLockFile($io);
-            endif;
         }
 
         /**
-         * Create lock file
+         * Validate symlink
          *
-         * @param SymfonyStyle $io
+         * @param SymfonyStyle    $io
+         * @param OutputInterface $output
+         * @param string          $origin
+         * @param string          $destination
          *
          * @return void
          */
-        private function createLockFile(SymfonyStyle $io): void {
+        private function validateSymlink(SymfonyStyle $io, OutputInterface $output, string $origin, string $destination): void {
 
-            $isCreated = $this->parameters->createLockFile();
+            $output->write(sprintf('Processing %s \'<info>%s</info>\'... ', $this->parameters->translate('Destino'), $destination));
 
-            if($isCreated):
-                $io->success($this->parameters->translate('Se ha creado el bloqueo de instalación correctamente'));
+            if (!$this->filesystem->exists($origin)):
+                $output->writeln(sprintf('<error>Error: %s</error>', $this->parameters->translate('El directorio o archivo de origen no existe')));
             else:
-                $io->error($this->parameters->translate('No es posible crear el bloqueo de instalación para entorno de producción'));
+                try {
+                    $this->filesystem->symlink($origin, $destination, true);
+                    $output->writeln('OK!');
+                }
+                catch (ExceptionInterface $exceptionInterface) {
+                    $output->writeln(sprintf('<error>Error: %s</error>', $this->parameters->translate('El symlink no es posible crearlo')));
+                }
+                catch (IOExceptionInterface $IOExceptionInterface) {
+                    $output->writeln(sprintf('<error>Error: %s</error>', $this->parameters->translate('El symlink no es posible crearlo')));
+                }
+                catch (IOException $IOException) {
+                    $output->writeln(sprintf('<error>Error: %s</error>', $this->parameters->translate('El symlink no es posible crearlo')));
+                }
+                catch (\Exception $exception) {
+                    $output->writeln(sprintf('<error>Error: %s</error>', $this->parameters->translate('El symlink no es posible crearlo')));
+                }
             endif;
-        }
-
-        /**
-         * Execute commands
-         *
-         * @param OutputInterface $output
-         * @param string          $environment
-         * @param string          $command
-         * @param array           $arguments
-         *
-         * @return int
-         * @throws \Exception
-         */
-        private function executeCommands(OutputInterface $output, string $environment, string $command, array $arguments = []) {
-
-            $console = $this->getApplication()->find($command);
-            $array = $this->parameters->formatInput($environment, array_merge(['command' => $command], $arguments));
-            $input = new ArrayInput($array);
-
-            return $console->run($input, $output);
+            $io->newLine();
         }
     }

@@ -1,0 +1,117 @@
+zyos_install:
+
+    ##
+    # Lenguajes / Languages
+    #
+    # es: español / spanish
+    # en: ingles / english
+    ##
+    translation: 'es'
+
+    ##
+    # Entornos de desarrollo / Environments
+    ##
+    environments: ['dev', 'prod']
+
+    ##
+    # Comandos de instalación / Install Commands
+    #
+    # - { enable: true, env: 'dev', command: 'doctrine:database:create' }
+    # - { enable: true, env: ['dev', 'prod'], command: 'doctrine:database:create' }
+    # - { enable: true, env: ['dev', 'prod'], command: 'doctrine:database:drop', arguments: { --if-exists: true, --force: true } }
+    ##
+    install:
+        enable: false
+        commands:
+            - { enable: true, env: ['dev', 'prod'], command: 'doctrine:database:create' }
+            - { enable: true, env: ['dev', 'prod'], command: 'doctrine:fixtures:load', arguments: { --append: true, --group: [ '{{env}}' ] } }
+            - { enable: true, env: ['dev', 'prod'], command: 'assets:install', arguments: { target: 'public', --symlink: true, --relative: true } }
+            - { enable: true, env: ['dev', 'prod'], command: 'cache:clear', arguments: { --no-warmup: true, --no-optional-warmers: true } }
+
+    ##
+    # Creación de link simbólicos / Create Symlinks
+    #
+    # - { enable: true, env: 'dev', origin: '%kernel.project_dir%/directory', destination: 'public/directory' }
+    # - { enable: true, env: ['dev', 'prod'], origin: '%kernel.project_dir%/directory', destination: 'public/directory' }
+    ##
+    symlink:
+        enable: false
+        lockable: true
+        commands: ~
+
+    ##
+    # Creación de copia de directorios / Create mirror directories
+    #
+    # - { enable: true, env: 'dev', origin: '%kernel.project_dir%/directory', destination: 'public/directory' }
+    # - { enable: true, env: ['dev', 'prod'], origin: '%kernel.project_dir%/directory', destination: 'public/directory' }
+    ##
+    mirror:
+        enable: false
+        lockable: true
+        commands: ~
+
+    ##
+    # Importar archivos SQL / Import SQL Files
+    #
+    # - { enable: true, env: 'dev', files: 'file.sql' }
+    # - { enable: true, env: ['dev', 'prod'], files: 'file.sql' }
+    # - { enable: true, env: 'dev', files: ['file1.sql', 'file2.sql'] }
+    # - { enable: true, env: ['dev', 'prod'], files: ['file1.sql', 'file2.sql'] }
+    ##
+    sql:
+        enable: false
+        lockable: true
+        commands: ~
+
+    ##
+    # Ejecutar comandos de terminal / Execute commands in terminal
+    #
+    # - { enable: true, env: 'dev', command: 'ls -al' }
+    # - { enable: true, env: ['dev', 'prod'], command: 'ls -al' }
+    ##
+    cli:
+        enable: false
+        lockable: true
+        commands: ~
+
+    ##
+    # Validaciones de recursos / Validations
+    #
+    # - { enable: true, env: 'dev', filepath: '%kernel.project_dir%/public/directory', validations: 'exists' }
+    # - { enable: true, env: ['dev', 'prod'], filepath: '%kernel.project_dir%/public/directory', validations: 'exists' }
+    # - { enable: true, env: 'dev', filepath: '%kernel.project_dir%/public/directory', validations: ['exists', 'is_dir'] }
+    # - { enable: true, env: ['dev', 'prod'], filepath: '%kernel.project_dir%/public/directory', validations: ['exists', 'is_dir'] }
+    #
+    # Validaciones / Validations
+    #
+    # 'exists' : Existencia del archivo o directorio / is exists file or directory
+    # 'is_file' : Es un archivo / is file
+    # 'is_dir' : Es un directorio / is directory
+    # 'is_link' : Es un enlace simbolico / is symlink
+    # 'is_executable' :  Es ejecutable el archivo o directorio / is executable file or directory
+    # 'is_readable' : Es posible leer el archivo o directorio / is readable file or directory
+    # 'is_writable' : Es posible escribir el archivo o directorio / is writable file or directory
+    # 'is_uploaded_file' : El archivo fue subido mediante HTTP POST / The file was uploaded via HTTP POST
+    ##
+    validation:
+        enable: false
+        lockable: true
+        commands: ~
+
+    ##
+    # Proceso de exportar base de datos / export - dump database
+    #
+    # name_connection:
+    #       enable: true
+    #       lockable: false
+    #       params:
+    #           client: mysqldump > REQUERIDO por el momento es la unica opcion / IS REQUIRED at the moment it is the only option
+    #           host: localhost | 192.168.0.2 | https://host.com > REQUERIDO / IS REQUIRED
+    #           port: 3306 > NO REQUERIDO / NOT REQUIRED
+    #           username: username > REQUERIDO / REQUIRED
+    #           password: password > REQUERIDO / REQUIRED
+    #           database: database > REQUERIDO / REQUIRED
+    ##
+    export:
+        enable: false
+        commands: ~

@@ -26,30 +26,56 @@
             $configuration = $this->getConfiguration($configs, $container);
             $config = $this->processConfiguration($configuration, $configs);
 
-            $container->setParameter(sprintf('%s.paths.local', $this->getAlias()), $config['paths']['local']);
-            $container->setParameter(sprintf('%s.paths.dump', $this->getAlias()), $config['paths']['dump']);
-            $container->setParameter(sprintf('%s.paths.sql', $this->getAlias()), $config['paths']['sql']);
+            $this->setContainerItem($container, $config, 'translation', 'translation', 'es');
+            $this->setContainerItem($container, $config, 'environments', 'environments', ['dev', 'prod']);
+            $this->setContainerItem($container, $config, 'path', 'path', '%kernel.project_dir%/src/Resources/install');
 
-            $container->setParameter(sprintf('%s.install.enable', $this->getAlias()), $config['install']['enable']);
-            $container->setParameter(sprintf('%s.install.configurations', $this->getAlias()), $config['install']['configurations']);
+            $this->setContainerItem($container, array_key_exists('install', $config) ? $config['install'] : [], 'enable', 'install.enable', false);
+            $this->setContainerItem($container, array_key_exists('install', $config) ? $config['install'] : [], 'commands', 'install.commands', []);
 
-            $container->setParameter(sprintf('%s.symlinks.enable', $this->getAlias()), $config['symlinks']['enable']);
-            $container->setParameter(sprintf('%s.symlinks.configurations', $this->getAlias()), $config['symlinks']['configurations']);
+            $this->setContainerItem($container, array_key_exists('symlink', $config) ? $config['symlink'] : [], 'enable', 'symlink.enable', false);
+            $this->setContainerItem($container, array_key_exists('symlink', $config) ? $config['symlink'] : [], 'lockable', 'symlink.lockable', true);
+            $this->setContainerItem($container, array_key_exists('symlink', $config) ? $config['symlink'] : [], 'commands', 'symlink.commands', []);
 
-            $container->setParameter(sprintf('%s.mirrors.enable', $this->getAlias()), $config['mirrors']['enable']);
-            $container->setParameter(sprintf('%s.mirrors.configurations', $this->getAlias()), $config['mirrors']['configurations']);
+            $this->setContainerItem($container, array_key_exists('mirror', $config) ? $config['mirror'] : [], 'enable', 'mirror.enable', false);
+            $this->setContainerItem($container, array_key_exists('mirror', $config) ? $config['mirror'] : [], 'lockable', 'mirror.lockable', true);
+            $this->setContainerItem($container, array_key_exists('mirror', $config) ? $config['mirror'] : [], 'commands', 'mirror.commands', []);
 
-            $container->setParameter(sprintf('%s.dump.enable', $this->getAlias()), $config['dump']['enable']);
-            $container->setParameter(sprintf('%s.dump.connections', $this->getAlias()), $config['dump']['connections']);
+            $this->setContainerItem($container, array_key_exists('sql', $config) ? $config['sql'] : [], 'enable', 'sql.enable', false);
+            $this->setContainerItem($container, array_key_exists('sql', $config) ? $config['sql'] : [], 'lockable', 'sql.lockable', true);
+            $this->setContainerItem($container, array_key_exists('sql', $config) ? $config['sql'] : [], 'commands', 'sql.commands', []);
 
-            $container->setParameter(sprintf('%s.sql_import.enable', $this->getAlias()), $config['sql_import']['enable']);
-            $container->setParameter(sprintf('%s.sql_import.configurations', $this->getAlias()), $config['sql_import']['configurations']);
+            $this->setContainerItem($container, array_key_exists('cli', $config) ? $config['cli'] : [], 'enable', 'cli.enable', false);
+            $this->setContainerItem($container, array_key_exists('cli', $config) ? $config['cli'] : [], 'lockable', 'cli.lockable', true);
+            $this->setContainerItem($container, array_key_exists('cli', $config) ? $config['cli'] : [], 'commands', 'cli.commands', []);
 
-            $container->setParameter(sprintf('%s.commands.enable', $this->getAlias()), $config['commands']['enable']);
-            $container->setParameter(sprintf('%s.commands.configurations', $this->getAlias()), $config['commands']['configurations']);
+            $this->setContainerItem($container, array_key_exists('validation', $config) ? $config['validation'] : [], 'enable', 'validation.enable', false);
+            $this->setContainerItem($container, array_key_exists('validation', $config) ? $config['validation'] : [], 'lockable', 'validation.lockable', true);
+            $this->setContainerItem($container, array_key_exists('validation', $config) ? $config['validation'] : [], 'commands', 'validation.commands', []);
+
+            $this->setContainerItem($container, array_key_exists('export', $config) ? $config['export'] : [], 'enable', 'export.enable', false);
+            $this->setContainerItem($container, array_key_exists('export', $config) ? $config['export'] : [], 'lockable', 'export.lockable', true);
+            $this->setContainerItem($container, array_key_exists('export', $config) ? $config['export'] : [], 'commands', 'export.commands', []);
 
             $loader = new YamlFileLoader($container, new FileLocator(dirname(__DIR__).'/Resources/config'));
             $loader->load('services.yaml');
+        }
+
+        /**
+         * Set parameters
+         *
+         * @param ContainerBuilder $container
+         * @param array            $array
+         * @param string           $key
+         * @param string           $alias
+         * @param bool             $default
+         *
+         * @return void
+         */
+        private function setContainerItem(ContainerBuilder $container, array $array = [], string $key, string $alias, $default = false): void {
+
+            $defaults = array_key_exists($key, $array) ? $array[$key] : $default;
+            $container->setParameter(sprintf('%s.%s', $this->getAlias(), $alias), $defaults);
         }
 
         /**

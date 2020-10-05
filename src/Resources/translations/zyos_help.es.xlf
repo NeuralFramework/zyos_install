@@ -1,0 +1,184 @@
+<?xml version="1.0"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="es" datatype="plaintext" original="file.ext">
+        <body>
+            <trans-unit id="1">
+                <source>zyos.install.help</source>
+                <target>
+<![CDATA[<comment>Comando de Instalación:</comment> <info>zyos:install</info>]]>
+<![CDATA[<comment>====================================</comment>]]>
+
+Este proceso generá la ejecución de varios comandos en el orden ingresados con
+el entorno al cuál deben ejecutarse este proceso simplifica los diferentes
+procesos a ejecutar.
+
+Ejemplos de uso:
+
+<![CDATA[<info>php bin/console zyos:install</info> <comment>[<environment>]</comment>]]>
+<![CDATA[<info>php bin/console zyos:install</info> <comment>dev</comment>]]>
+<![CDATA[<info>php bin/console zyos:install</info> <comment>prod</comment>]]>
+
+En ciertos casos cuando se requiere ejecutar Doctrine Fixtures, es necesario
+ingresar la opción de environment.
+
+<![CDATA[<info>php bin/console zyos:install</info> <comment>dev</comment> <info>--env=dev</info>]]>
+<![CDATA[<info>php bin/console zyos:install</info> <comment>prod</comment> <info>--env=dev</info>]]>
+
+<![CDATA[<error>Para tener en cuenta:</error> cuando se ejecuta el comando en producción se creá un]]>
+bloqueo el cuál no permite volver a ejecutar este comando.
+                </target>
+            </trans-unit>
+            <trans-unit id="2">
+                <source>zyos.symlink.create.help</source>
+                <target>
+<![CDATA[<comment>Comando de Creación Enlace Simbólico:</comment> <info>zyos:create:symlink</info>]]>
+<![CDATA[<comment>=========================================================</comment>]]>
+
+El proceso de creación de enlaces simbólicos generá de forma simplificada el
+despliegue de la aplicación en equipos de trabajo es la manera más rápida
+para desplegar los enlaces simbólicos.
+
+Ejemplos de uso:
+
+<![CDATA[<info>php bin/console zyos:create:symlink</info> <comment>[<environment>]</comment>]]>
+<![CDATA[<info>php bin/console zyos:create:symlink</info> <comment>dev</comment>]]>
+<![CDATA[<info>php bin/console zyos:create:symlink</info> <comment>prod</comment>]]>
+
+En ciertos casos se requiere ejecutar en un entorno específico es necesario
+ingresar la opción de environment.
+
+<![CDATA[<info>php bin/console zyos:create:symlink</info> <comment>dev</comment> <info>--env=dev</info>]]>
+<![CDATA[<info>php bin/console zyos:create:symlink</info> <comment>prod</comment> <info>--env=dev</info>]]>
+                </target>
+            </trans-unit>
+            <trans-unit id="3">
+                <source>zyos.mirror.create.help</source>
+                <target>
+<![CDATA[<comment>Comando de Creación Mirror (Copia de Directorio):</comment> <info>zyos:create:mirror</info>]]>
+<![CDATA[<comment>====================================================================</comment>]]>
+
+El proceso de creación de copia de directorios (Mirror) generá de forma
+implificada el despliegue de la aplicación en equipos de trabajo es la manera
+más rápida para desplegar los directorios configurados.
+
+Ejemplos de uso:
+
+<![CDATA[<info>php bin/console zyos:create:mirror</info> <comment>[<environment>]</comment>]]>
+<![CDATA[<info>php bin/console zyos:create:mirror</info> <comment>dev</comment>]]>
+<![CDATA[<info>php bin/console zyos:create:mirror</info> <comment>prod</comment>]]>
+
+En ciertos casos se requiere ejecutar en un entorno específico es necesario
+ingresar la opción de environment.
+
+<![CDATA[<info>php bin/console zyos:create:mirror</info> <comment>dev</comment> <info>--env=dev</info>]]>
+<![CDATA[<info>php bin/console zyos:create:mirror</info> <comment>prod</comment> <info>--env=dev</info>]]>
+                </target>
+            </trans-unit>
+            <trans-unit id="4">
+                <source>zyos.execute.cli.help</source>
+                <target>
+<![CDATA[<comment>Comando de Ejecución CLI (Interfaz de Línea de Comandos):</comment> <info>zyos:execute:cli</info>]]>
+<![CDATA[<comment>==========================================================================</comment>]]>
+
+Proceso de ejecución de comandos del sistema operativo para procesos de
+desarrollo y es ejecutado a través de PHP.
+
+Ejemplos de uso:
+
+<![CDATA[<info>php bin/console zyos:execute:cli</info> <comment>[<environment>]</comment>]]>
+<![CDATA[<info>php bin/console zyos:execute:cli</info> <comment>dev</comment>]]>
+<![CDATA[<info>php bin/console zyos:execute:cli</info> <comment>prod</comment>]]>
+
+En ciertos casos se requiere ejecutar en un entorno específico es necesario
+ingresar la opción de environment.
+
+<![CDATA[<info>php bin/console zyos:execute:cli</info> <comment>dev</comment> <info>--env=dev</info>]]>
+<![CDATA[<info>php bin/console zyos:execute:cli</info> <comment>prod</comment> <info>--env=dev</info>]]>
+
+<![CDATA[<error>Para tener en cuenta:</error> se pueden presentar comportamientos inesperados a causa de]]>
+permisos o limitaciones de ejecución.
+                </target>
+            </trans-unit>
+            <trans-unit id="5">
+                <source>zyos.execute.validations.help</source>
+                <target>
+<![CDATA[<comment>Comando de Ejecución Validaciones:</comment> <info>zyos:execute:validation</info>]]>
+<![CDATA[<comment>==========================================================</comment>]]>
+
+Proceso de validación de los diferentes items configurados los cuáles deben
+ser validados antes de ser desplegados o para ver su viabilidad en producción
+
+Ejemplos de uso:
+
+<![CDATA[<info>php bin/console zyos:execute:validation</info> <comment>[<environment>]</comment>]]>
+<![CDATA[<info>php bin/console zyos:execute:validation</info> <comment>dev</comment>]]>
+<![CDATA[<info>php bin/console zyos:execute:validation</info> <comment>prod</comment>]]>
+
+En este proceso podría mostrar validaciones como:
+
+<![CDATA[<comment>*</comment> Existencia de archivos y/o directorios]]>
+<![CDATA[<comment>*</comment> Es un archivo]]>
+<![CDATA[<comment>*</comment> Es un directorio]]>
+<![CDATA[<comment>*</comment> Es un enlace simbólico]]>
+<![CDATA[<comment>*</comment> Es ejecutable]]>
+<![CDATA[<comment>*</comment> Tiene permisos de lectura]]>
+<![CDATA[<comment>*</comment> Tiene permisos de escritura]]>
+                </target>
+            </trans-unit>
+            <trans-unit id="6">
+                <source>zyos.sql.import.help</source>
+                <target>
+<![CDATA[<comment>Comando Importar Archivos SQL:</comment> <info>zyos:sql:import</info>]]>
+<![CDATA[<comment>==============================================</comment>]]>
+
+Este comando ejecuta las diferentes configuraciones para importar archivos SQL
+a través de Doctrine solo hay que pasar el entorno correspondiente para
+ejecutarse en el orden configurado.
+
+Ejemplos de uso:
+
+<![CDATA[<info>php bin/console zyos:sql:import</info> <comment>[<environment>]</comment>]]>
+<![CDATA[<info>php bin/console zyos:sql:import</info> <comment>dev</comment>]]>
+<![CDATA[<info>php bin/console zyos:sql:import</info> <comment>prod</comment>]]>
+                </target>
+            </trans-unit>
+            <trans-unit id="7">
+                <source>zyos.sql.export.help</source>
+                <target>
+<![CDATA[<comment>Comando Exportar Base de Datos (Dump):</comment> <info>zyos:sql:export</info>]]>
+<![CDATA[<comment>======================================================</comment>]]>
+
+Este comando generá el proceso de exportar la base de datos seleccionada a un
+archivo sql este proceso puede seleccionar varias opciones las cuáles ayudaran
+a este proceso.
+
+<![CDATA[<error>AVISO</error> este proceso inicialmente es compatible solo y únicamente con MySQL a]]>
+<![CDATA[través del comando <info>mysqldump</info>.]]>
+
+Ejemplos de uso:
+
+<![CDATA[<info>php bin/console zyos:sql:export</info> <comment>[<configuration>]</comment>]]>
+<![CDATA[<info>php bin/console zyos:sql:export</info> <comment>[<configuration>]</comment> <info>--option</info> ...]]>
+<![CDATA[<info>php bin/console zyos:sql:export</info> <comment>nombre_configuracion</comment>]]>
+
+
+Exportar todos los datos (Estructuras, datos, etc)
+<![CDATA[<info>php bin/console zyos:sql:export</info> <comment>nombre_configuracion</comment>]]>
+
+Crear INSERT INTO extendidos
+<![CDATA[<info>php bin/console zyos:sql:export</info> <comment>nombre_configuracion</comment> <info>--extended-insert</info>]]>
+
+No crear tablas
+<![CDATA[<info>php bin/console zyos:sql:export</info> <comment>nombre_configuracion</comment> <info>--no-create-tables</info>]]>
+
+Exportar solo los INSERT INTO
+<![CDATA[<info>php bin/console zyos:sql:export</info> <comment>nombre_configuracion</comment> <info>--no-create-database --no-create-drop-tables --no-create-lock-tables -no-create-tables</info>]]>
+
+Asignar nombre del archivo
+<![CDATA[<info>php bin/console zyos:sql:export</info> <comment>nombre_configuracion</comment> <info>--result-file=</info>"<comment>archivo.sql</comment>"]]>
+                </target>
+            </trans-unit>
+
+        </body>
+    </file>
+</xliff>
