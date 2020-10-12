@@ -55,12 +55,15 @@
             $this->setName('zyos:sql:export');
             $this->setDescription('Genera el proceso de exportar la base de datos de la aplicación');
             $this->addArgument('configuration', InputArgument::REQUIRED, 'Configuración a ejecutar');
+            $this->addOption('only-command', null, InputOption::VALUE_NONE, 'Obtiene el comando completo para el proceso pero no se ejecutara');
             $this->addOption('extended-insert', null, InputOption::VALUE_NONE, '<comment>[MySQL]</comment> Utiliza la sintaxis INSERT en una fila que incluya varias listas de VALORES');
+            $this->addOption('ignore-table', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_OPTIONAL, '<comment>[MySQL]</comment> Ignora la tabla indicada en el proceso');
             $this->addOption('no-create-database', null, InputOption::VALUE_NONE, '<comment>[MySQL]</comment> No crear sentencia <info>CREATE DATABASE</info>');
             $this->addOption('no-create-drop-tables', null, InputOption::VALUE_NONE, '<comment>[MySQL]</comment> No crear sentencia <info>DROP TABLE</info>');
             $this->addOption('no-create-insert', null, InputOption::VALUE_NONE, '<comment>[MySQL]</comment> No crear senctencias <info>INSERT INTO</info>');
             $this->addOption('no-create-lock-tables', null, InputOption::VALUE_NONE, '<comment>[MySQL]</comment> No crear senctencias <info>LOCK TABLES</info>');
             $this->addOption('no-create-tables', null, InputOption::VALUE_NONE, '<comment>[MySQL]</comment> No crear senctencias <info>CREATE TABLE</info>');
+            $this->addOption('table', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_OPTIONAL, '<comment>[MySQL]</comment> Obtiene los datos unicamente de la tabla especificada');
             $this->addOption('result-file', null, InputOption::VALUE_REQUIRED, '<comment>[MySQL]</comment> Nombre del archivo de salida');
         }
 
@@ -233,14 +236,23 @@
 
             $parameterBag->set('result-file', $this->getResultFile($input));
             $parameterBag->set('extended-insert', $input->getOption('extended-insert'));
+            $parameterBag->set('ignore-table', $input->getOption('ignore-table'));
             $parameterBag->set('no-create-database', $input->getOption('no-create-database'));
             $parameterBag->set('no-create-insert', $input->getOption('no-create-insert'));
             $parameterBag->set('no-create-tables', $input->getOption('no-create-tables'));
             $parameterBag->set('no-create-lock-tables', !$input->getOption('no-create-lock-tables'));
+            $parameterBag->set('table', $input->getOption('table'));
             $parameterBag->set('configuration_name', $configuration);
+
             $manager = new Manager($parameterBag, $this->parameters->getPath());
 
-            $this->executeCommandShell($output, $manager);
+            if ($input->getOption('only-command')):
+                $this->getOnlyCommand($io, $manager);
+            else:
+                $this->executeCommandShell($io, $output, $manager);
+            endif;
+
+            $io->newLine();
             $io->success($this->parameters->translate('Se ha finalizado el proceso de ejecución de comandos'));
         }
 
@@ -258,6 +270,20 @@
         }
 
         /**
+         * Get string command
+         *
+         * @param SymfonyStyle $io
+         * @param Manager      $manager
+         *
+         * @return void
+         */
+        private function getOnlyCommand(SymfonyStyle $io, Manager $manager): void {
+
+            $io->newLine();
+            $io->writeln(sprintf('<info>%s:</info> %s', $this->parameters->translate('Comando'), $manager->getCommand()));
+        }
+
+        /**
          * Execute command
          *
          * @param OutputInterface $output
@@ -265,7 +291,9 @@
          *
          * @return void
          */
-        private function executeCommandShell(OutputInterface $output, Manager $manager): void {
+        private function executeCommandShell(SymfonyStyle $io, OutputInterface $output, Manager $manager): void {
+
+            $this->getOnlyCommand($io, $manager);
 
             $process = Process::fromShellCommandline($manager->getCommand());
             $process->run();

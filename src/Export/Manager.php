@@ -77,6 +77,28 @@
         }
 
         /**
+         * Get string param for execute
+         *
+         * @param string $key
+         * @param string $template
+         *
+         * @return string|null
+         */
+        private function validateArray(string $key, string $template): ?string {
+
+            if ($this->params->has($key)):
+                $array = array_values(array_filter($this->params->get($key)));
+                if (count($array) > 0):
+                    return implode(' ', array_map(function ($value) use ($template) {
+                        return sprintf($template, $value);
+                    }, $array));
+                endif;
+            endif;
+
+            return null;
+        }
+
+        /**
          * Get result file
          *
          * @return string
@@ -133,8 +155,10 @@
             $list[] = $this->validateBoolean('no-create-tables', '--no-create-info=%s');
             $list[] = $this->validateBoolean('no-create-insert', '--no-data=%s');
             $list[] = $this->validateBoolean('no-create-lock-tables', '--lock-tables=%s');
+            $list[] = $this->validateArray('ignore-table', '--ignore-table="'.$this->params->get('database').'.%s"');
             $list[] = $this->validateResultFile();
-            $list[] = $this->validateString('database', '--databases %s');
+            $list[] = $this->validateString('database', '%s');
+            $list[] = $this->validateArray('table', '"%s"');
 
             return array_filter($list);
         }

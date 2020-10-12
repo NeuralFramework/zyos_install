@@ -178,6 +178,10 @@
                 <source>El comando %command% No se encuentra activo</source>
                 <target>El comando %command% No se encuentra activo</target>
             </trans-unit>
+            <trans-unit id="45">
+                <source>Comando</source>
+                <target>Comando</target>
+            </trans-unit>
 
         </body>
     </file>
