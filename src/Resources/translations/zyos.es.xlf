@@ -182,6 +182,38 @@
                 <source>Comando</source>
                 <target>Comando</target>
             </trans-unit>
+            <trans-unit id="46">
+                <source>No debe existir el recurso</source>
+                <target>No debe existir el recurso</target>
+            </trans-unit>
+            <trans-unit id="47">
+                <source>No es un archivo</source>
+                <target>No es un archivo</target>
+            </trans-unit>
+            <trans-unit id="48">
+                <source>No es un directorio</source>
+                <target>No es un directorio</target>
+            </trans-unit>
+            <trans-unit id="49">
+                <source>No es un enlace simbólico</source>
+                <target>No es un enlace simbólico</target>
+            </trans-unit>
+            <trans-unit id="50">
+                <source>No es un ejecutable</source>
+                <target>No es un ejecutable</target>
+            </trans-unit>
+            <trans-unit id="51">
+                <source>No se debe leer</source>
+                <target>No se debe leer</target>
+            </trans-unit>
+            <trans-unit id="52">
+                <source>No se debe escribir</source>
+                <target>No se debe escribir</target>
+            </trans-unit>
+            <trans-unit id="53">
+                <source>El archivo NO fue subido mediante HTTP POST</source>
+                <target>El archivo NO fue subido mediante HTTP POST</target>
+            </trans-unit>
 
         </body>
     </file>

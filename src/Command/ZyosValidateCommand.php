@@ -25,7 +25,17 @@
     class ZyosValidateCommand extends Command {
 
         /**
-         * @var Filesystem 
+         * @var int
+         */
+        const METHOD_IS = 1;
+
+        /**
+         * @var int
+         */
+        const METHOD_NOT_IS = 2;
+
+        /**
+         * @var Filesystem
          */
         private $filesystem;
 
@@ -299,16 +309,24 @@
         private function getValidation(?string $validation): ?array {
 
             $array = [
-                'exists' => ['name' => $this->parameters->translate('Existencia del recurso'), 'function' => 'exists'],
-                'is_file' => ['name' => $this->parameters->translate('Es un archivo'), 'function' => 'is_file'],
-                'is_dir' => ['name' => $this->parameters->translate('Es un directorio'), 'function' => 'is_dir'],
-                'is_link' => ['name' => $this->parameters->translate('Es un enlace simbolico'), 'function' => 'is_link'],
-                'is_executable' => ['name' => $this->parameters->translate('Es un ejecutable'), 'function' => 'is_executable'],
-                'is_readable' => ['name' => $this->parameters->translate('Se puede leer'), 'function' => 'is_readable'],
-                'is_writable' => ['name' => $this->parameters->translate('Se puede escribir'), 'function' => 'is_writable'],
-                'is_uploaded_file' => ['name' => $this->parameters->translate('El archivo fue subido mediante HTTP POST'), 'function' => 'is_uploaded_file']
+                'exists'               => ['name' => $this->parameters->translate('Existencia del recurso'), 'function' => 'exists'],
+                'not_exists'           => ['name' => $this->parameters->translate('No debe existir el recurso'), 'function' => 'not_exists'],
+                'is_file'              => ['name' => $this->parameters->translate('Es un archivo'), 'function' => 'is_file'],
+                'is_not_file'          => ['name' => $this->parameters->translate('No es un archivo'), 'function' => 'is_not_file'],
+                'is_dir'               => ['name' => $this->parameters->translate('Es un directorio'), 'function' => 'is_dir'],
+                'is_not_dir'           => ['name' => $this->parameters->translate('No es un directorio'), 'function' => 'is_not_dir'],
+                'is_link'              => ['name' => $this->parameters->translate('Es un enlace simbolico'), 'function' => 'is_link'],
+                'is_not_link'          => ['name' => $this->parameters->translate('No es un enlace simbólico'), 'function' => 'is_not_link'],
+                'is_executable'        => ['name' => $this->parameters->translate('Es un ejecutable'), 'function' => 'is_executable'],
+                'is_not_executable'    => ['name' => $this->parameters->translate('No es un ejecutable'), 'function' => 'is_not_executable'],
+                'is_readable'          => ['name' => $this->parameters->translate('Se puede leer'), 'function' => 'is_readable'],
+                'is_not_readable'      => ['name' => $this->parameters->translate('No se debe leer'), 'function' => 'is_not_readable'],
+                'is_writable'          => ['name' => $this->parameters->translate('Se puede escribir'), 'function' => 'is_writable'],
+                'is_not_writable'      => ['name' => $this->parameters->translate('No se debe escribir'), 'function' => 'is_not_writable'],
+                'is_uploaded_file'     => ['name' => $this->parameters->translate('El archivo fue subido mediante HTTP POST'), 'function' => 'is_uploaded_file'],
+                'is_not_uploaded_file' => ['name' => $this->parameters->translate('El archivo NO fue subido mediante HTTP POST'), 'function' => 'is_not_uploaded_file']
             ];
-            
+
             return array_key_exists($validation, $array) ? $array[$validation] : null;
         }
 
@@ -323,16 +341,56 @@
         private function getFunction(?string $function, $value) {
 
             $array = [
-                'exists' => [$this->filesystem, 'exists'],
-                'is_file' => 'is_file',
-                'is_dir' => 'is_dir',
-                'is_link' => 'is_link',
-                'is_executable' => 'is_executable',
-                'is_readable' => 'is_readable',
-                'is_writable' => 'is_writable',
-                'is_uploaded_file' => 'is_uploaded_file',
+                'exists'               => ['method' => self::METHOD_IS, 'function' => [$this->filesystem, 'exists']],
+                'not_exists'           => ['method' => self::METHOD_NOT_IS, 'function' => [$this->filesystem, 'exists']],
+                'is_file'              => ['method' => self::METHOD_IS, 'function' => 'is_file'],
+                'is_not_file'          => ['method' => self::METHOD_NOT_IS, 'function' => 'is_file'],
+                'is_dir'               => ['method' => self::METHOD_IS, 'function' => 'is_dir'],
+                'is_not_dir'           => ['method' => self::METHOD_NOT_IS, 'function' => 'is_dir'],
+                'is_link'              => ['method' => self::METHOD_IS, 'function' => 'is_link'],
+                'is_not_link'          => ['method' => self::METHOD_NOT_IS, 'function' => 'is_link'],
+                'is_executable'        => ['method' => self::METHOD_IS, 'function' => 'is_executable'],
+                'is_not_executable'    => ['method' => self::METHOD_NOT_IS, 'function' => 'is_executable'],
+                'is_readable'          => ['method' => self::METHOD_IS, 'function' => 'is_readable'],
+                'is_not_readable'      => ['method' => self::METHOD_NOT_IS, 'function' => 'is_readable'],
+                'is_writable'          => ['method' => self::METHOD_IS, 'function' => 'is_writable'],
+                'is_not_writable'      => ['method' => self::METHOD_NOT_IS, 'function' => 'is_writable'],
+                'is_uploaded_file'     => ['method' => self::METHOD_IS, 'function' => 'is_uploaded_file'],
+                'is_not_uploaded_file' => ['method' => self::METHOD_NOT_IS, 'function' => 'is_uploaded_file']
             ];
 
-            return array_key_exists($function, $array) ? call_user_func_array($array[$function], [$value]) : null;
+            if (array_key_exists($function, $array)):
+                if ($array[$function]['method'] == self::METHOD_NOT_IS):
+                    return $this->callBooleanNotFunction($array[$function]['function'], [$value]);
+                else:
+                    return $this->callBooleanFunction($array[$function]['function'], [$value]);
+                endif;
+            endif;
+
+            return null;
+        }
+
+        /**
+         * Execute functions and classes for validation
+         *
+         * @param       $function
+         * @param array $params
+         *
+         * @return mixed
+         */
+        private function callBooleanFunction($function, array $params = []) {
+            return call_user_func_array($function, $params);
+        }
+
+        /**
+         * Execute functions and classes for validation
+         *
+         * @param       $function
+         * @param array $params
+         *
+         * @return bool
+         */
+        private function callBooleanNotFunction($function, array $params = []) {
+            return !call_user_func_array($function, $params);
         }
     }
