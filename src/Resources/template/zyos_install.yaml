@@ -85,13 +85,21 @@ zyos_install:
     # Validaciones / Validations
     #
     # 'exists' : Existencia del archivo o directorio / is exists file or directory
+    # 'not_exists' : No existe el archivo o directorio / No exists file or directory
     # 'is_file' : Es un archivo / is file
+    # 'is_not_file' : No es un archivo / Not is file
     # 'is_dir' : Es un directorio / is directory
+    # 'is_not_dir' : No es un directorio / Not is directory
     # 'is_link' : Es un enlace simbolico / is symlink
+    # 'is_not_link' : no es un enlace simbolico / Not is symlink
     # 'is_executable' :  Es ejecutable el archivo o directorio / is executable file or directory
+    # 'is_not_executable' :  No es ejecutable el archivo o directorio / not is executable file or directory
     # 'is_readable' : Es posible leer el archivo o directorio / is readable file or directory
+    # 'is_not_readable' : No es posible leer el archivo o directorio / Not is readable file or directory
     # 'is_writable' : Es posible escribir el archivo o directorio / is writable file or directory
+    # 'is_not_writable' : No es posible escribir el archivo o directorio / Not is writable file or directory
     # 'is_uploaded_file' : El archivo fue subido mediante HTTP POST / The file was uploaded via HTTP POST
+    # 'is_not_uploaded_file' : El archivo No fue subido mediante HTTP POST / The file NOT was uploaded via HTTP POST
     ##
     validation:
         enable: false
