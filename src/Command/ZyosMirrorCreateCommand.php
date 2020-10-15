@@ -261,7 +261,12 @@
                 $output->writeln(sprintf('<error>Error: %s</error>', $this->parameters->translate('El directorio o archivo de origen no existe')));
             else:
                 try {
-                    $this->filesystem->mirror($origin, $destination);
+                    if (is_file($origin)):
+                        $this->filesystem->copy($origin, $destination, true);
+                    else:
+                        $this->filesystem->mirror($origin, $destination);
+                    endif;
+
                     $output->writeln('OK!');
                 }
                 catch (ExceptionInterface $exceptionInterface) {
