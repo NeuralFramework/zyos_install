@@ -1,8 +1,8 @@
-#Zyos Install (Symfony Bundle)
+# Zyos Install (Symfony Bundle)
 
 **Zyos Install** es una serie de utilidades las cuales pueden ayudar en procesos de desarrollo como despliegues para producción, estas utilidades son ejecutadas a través de la consola de Symfony.
 
-##Instalación
+## Instalación
 
 ```sh
 composer require zyos/zyos_install 1.0.x-dev
@@ -103,11 +103,11 @@ zyos_install:
 ```
 
 ## Opciones de configuración
-**install: enable:** true para poder utilizar el comando, false para desactivarlo.
-**install: commands: - { enable: true }:** true para poder utilizar el comando, false para desactivarlo.
-**install: commands: - { env: [ 'dev', 'prod' ] }:** entornos los cuales se debe ejecutar el comando correspondiente.
-**install: commands: - { command: 'comando:symfony' }:** comando Symfony para ser ejecutado
-**install: commands: - { arguments: { opcion: 'valor'} }:** en caso que el comando Symfony requiera pasar argumentos se realiza con el array correspondiente.
+- **install: enable:** true para poder utilizar el comando, false para desactivarlo.
+- **install: commands: - { enable: true }:** true para poder utilizar el comando, false para desactivarlo.
+- **install: commands: - { env: [ 'dev', 'prod' ] }:** entornos los cuales se debe ejecutar el comando correspondiente.
+- **install: commands: - { command: 'comando:symfony' }:** comando Symfony para ser ejecutado
+- **install: commands: - { arguments: { opcion: 'valor'} }:** en caso que el comando Symfony requiera pasar argumentos se realiza con el array correspondiente.
 
 >En algunos comandos es necesario pasar un parámetro de entorno, se ha generado el valor: **{{env}}** el cual es el mismo entorno asignado en la ejecución del comando zyos:install <entorno>.
 
@@ -139,12 +139,12 @@ zyos_install:
             - { enable: true, env: [ 'dev', 'prod' ], origin: '%kernel.project_dir%/src/Resources/public/css', destination: 'public/css' }
 ```
 
-**symlink: enable:** true para poder utilizar el comando, false para desactivarlo.
-**symlink: lockable:** este parámetro si su valor es true y existe el archivo de bloqueo ==src/Resources/install/lock.lock== no se ejecutara el comando, en caso que su valor sea false se ejecutara sin limitaciones.
-**symlink: commands: - { enable: true }:** true para poder utilizar el comando, false para desactivarlo.
-**symlink: commands: - { env: [ 'dev', 'prod' ] }:** entornos los cuales se debe ejecutar el comando
-**symlink: commands: - { origin: 'directorio/origen' }:** directorio y/o archivo de origen
-**symlink: commands: - { destination: 'directorio/destino' }:** directorio y/o archivo de destino (enlace simbólico)
+- **symlink: enable:** true para poder utilizar el comando, false para desactivarlo.
+- **symlink: lockable:** este parámetro si su valor es true y existe el archivo de bloqueo ==src/Resources/install/lock.lock== no se ejecutara el comando, en caso que su valor sea false se ejecutara sin limitaciones.
+- **symlink: commands: - { enable: true }:** true para poder utilizar el comando, false para desactivarlo.
+- **symlink: commands: - { env: [ 'dev', 'prod' ] }:** entornos los cuales se debe ejecutar el comando
+- **symlink: commands: - { origin: 'directorio/origen' }:** directorio y/o archivo de origen
+- **symlink: commands: - { destination: 'directorio/destino' }:** directorio y/o archivo de destino (enlace simbólico)
 
 >Es posible configurar un directorio o un archivo como enlace simbólico.
 
@@ -174,12 +174,12 @@ zyos_install:
             - { enable: true, env: [ 'dev', 'prod' ], origin: '%kernel.project_dir%/src/Resources/public/css', destination: 'public/css' }
 ```
 
-**mirror: enable:** true para poder utilizar el comando, false para desactivarlo.
-**mirror: lockable:** este parámetro si su valor es true y existe el archivo de bloqueo ==src/Resources/install/lock.lock== no se ejecutara el comando, en caso que su valor sea false se ejecutara sin limitaciones.
-**mirror: commands: - { enable: true }:** true para poder utilizar el comando, false para desactivarlo.
-**mirror: commands: - { env: [ 'dev', 'prod' ] }:** entornos los cuales se debe ejecutar el comando
-**mirror: commands: - { origin: 'directorio/origen' }:** directorio y/o archivo de origen
-**mirror: commands: - { destination: 'directorio/destino' }:** directorio y/o archivo de destino
+- **mirror: enable:** true para poder utilizar el comando, false para desactivarlo.
+- **mirror: lockable:** este parámetro si su valor es true y existe el archivo de bloqueo ==src/Resources/install/lock.lock== no se ejecutara el comando, en caso que su valor sea false se ejecutara sin limitaciones.
+- **mirror: commands: - { enable: true }:** true para poder utilizar el comando, false para desactivarlo.
+- **mirror: commands: - { env: [ 'dev', 'prod' ] }:** entornos los cuales se debe ejecutar el comando
+- **mirror: commands: - { origin: 'directorio/origen' }:** directorio y/o archivo de origen
+- **mirror: commands: - { destination: 'directorio/destino' }:** directorio y/o archivo de destino
 
 >Es posible configurar un directorio o un archivo como mirror.
 
@@ -210,12 +210,12 @@ zyos_install:
             - { enable: true, env: [ 'dev', 'prod' ], files: [ 'archivo1.sql', 'archivo2.sql' ] }
 ```
 
-**sql: enable:** true para poder utilizar el comando, false para desactivarlo.
-**sql: lockable:** este parámetro si su valor es true y existe el archivo de bloqueo ==src/Resources/install/lock.lock== no se ejecutara el comando, en caso que su valor sea false se ejecutara sin limitaciones.
-**sql: commands: - { enable: true }:** true para poder utilizar el comando, false para desactivarlo.
-**sql: commands: - { env: [ 'dev', 'prod' ] }:** entornos los cuales se debe ejecutar el comando
-**sql: commands: - { files: [ 'archivo1.sql', 'archivo2.sql' ] }:** archivos SQL a cargar.
-**sql: commands: - { connection: 'nombre de la conexión DOCTRINE' }:** En caso de manejar multiples conexiones a bases de datos con DOCTRINE, puede indicar el nombre de la conexión para cargar los archivos SQL.
+- **sql: enable:** true para poder utilizar el comando, false para desactivarlo.
+- **sql: lockable:** este parámetro si su valor es true y existe el archivo de bloqueo ==src/Resources/install/lock.lock== no se ejecutara el comando, en caso que su valor sea false se ejecutara sin limitaciones.
+- **sql: commands: - { enable: true }:** true para poder utilizar el comando, false para desactivarlo.
+- **sql: commands: - { env: [ 'dev', 'prod' ] }:** entornos los cuales se debe ejecutar el comando
+- **sql: commands: - { files: [ 'archivo1.sql', 'archivo2.sql' ] }:** archivos SQL a cargar.
+- **sql: commands: - { connection: 'nombre de la conexión DOCTRINE' }:** En caso de manejar multiples conexiones a bases de datos con DOCTRINE, puede indicar el nombre de la conexión para cargar los archivos SQL.
 
 >Los archivos SQL deben estar almacenados en la ruta: **src/Resources/install/sql/** para que el comando pueda cargarlos a través de DOCTRINE.
 
@@ -237,11 +237,11 @@ zyos_install:
             - { enable: true, env: 'dev', command: 'ls -al' }
             - { enable: true, env: [ 'dev', 'prod' ], command: 'ls -al' }
 ```
-**cli: enable:** true para poder utilizar el comando, false para desactivarlo.
-**cli: lockable:** este parámetro si su valor es true y existe el archivo de bloqueo ==src/Resources/install/lock.lock== no se ejecutara el comando, en caso que su valor sea false se ejecutara sin limitaciones.
-**cli: commands: - { enable: true }:** true para poder utilizar el comando, false para desactivarlo.
-**cli: commands: - { env: [ 'dev', 'prod' ] }:** entornos los cuales se debe ejecutar el comando
-**cli: commands: - { command: 'comando a ejecutar' }:** comando a ejecutar en el sistema operativo.
+- **cli: enable:** true para poder utilizar el comando, false para desactivarlo.
+- **cli: lockable:** este parámetro si su valor es true y existe el archivo de bloqueo ==src/Resources/install/lock.lock== no se ejecutara el comando, en caso que su valor sea false se ejecutara sin limitaciones.
+- **cli: commands: - { enable: true }:** true para poder utilizar el comando, false para desactivarlo.
+- **cli: commands: - { env: [ 'dev', 'prod' ] }:** entornos los cuales se debe ejecutar el comando
+- **cli: commands: - { command: 'comando a ejecutar' }:** comando a ejecutar en el sistema operativo.
 
 >La ejecución de los comandos se realiza a través del componente **Symfony Process**
 
@@ -265,12 +265,12 @@ zyos_install:
             - { enable: true, env: ['dev', 'prod'], filepath: '%kernel.project_dir%/public/directory', validations: ['exists', 'is_dir'] }
 ```
 
-**validation: enable:** true para poder utilizar el comando, false para desactivarlo.
-**validation: lockable:** este parámetro si su valor es true y existe el archivo de bloqueo ==src/Resources/install/lock.lock== no se ejecutara el comando, en caso que su valor sea false se ejecutara sin limitaciones.
-**validation: commands: - { enable: true }:** true para poder utilizar el comando, false para desactivarlo.
-**validation: commands: - { env: [ 'dev', 'prod' ] }:** entornos los cuales se debe ejecutar el comando
-**validation: commands: - { filepath: 'Ruta del archivo o directorio' }:** directorio y/o archivo el cual se realizaran las validaciones.
-**validation: commands: - { validations: [ 'validación' ] }:** validación a ser aplicada
+- **validation: enable:** true para poder utilizar el comando, false para desactivarlo.
+- **validation: lockable:** este parámetro si su valor es true y existe el archivo de bloqueo ==src/Resources/install/lock.lock== no se ejecutara el comando, en caso que su valor sea false se ejecutara sin limitaciones.
+- **validation: commands: - { enable: true }:** true para poder utilizar el comando, false para desactivarlo.
+- **validation: commands: - { env: [ 'dev', 'prod' ] }:** entornos los cuales se debe ejecutar el comando
+- **validation: commands: - { filepath: 'Ruta del archivo o directorio' }:** directorio y/o archivo el cual se realizaran las validaciones.
+- **validation: commands: - { validations: [ 'validación' ] }:** validación a ser aplicada
 
 ### **Validaciones Disponibles**
 - **exists**: valida si un archivo o directorio existe.

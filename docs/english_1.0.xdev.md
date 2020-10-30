@@ -1,8 +1,8 @@
-#Zyos Install (Symfony Bundle)
+# Zyos Install (Symfony Bundle)
 
 **Zyos Install** It is a series of utilities which can help in development processes such as production deployments, these utilities are executed through the component Symfony console.
 
-##Installation
+## Installation
 
 ```sh
 composer require zyos/zyos_install 1.0.x-dev
@@ -96,11 +96,11 @@ zyos_install:
 ```
 
 ## Configuration Options
-**install: enable:** true to be able to use the command, false to disable it.
-**install: commands: - { enable: true }:** true to be able to use the command, false to disable it.
-**install: commands: - { env: [ 'dev', 'prod' ] }:** environments in which the corresponding command must be executed.
-**install: commands: - { command: 'comando:symfony' }:** Symfony command to be executed
-**install: commands: - { arguments: { opcion: 'valor'} }:** in case the symfony command requires passing arguments, it is done with the corresponding array.
+- **install: enable:** true to be able to use the command, false to disable it.
+- **install: commands: - { enable: true }:** true to be able to use the command, false to disable it.
+- **install: commands: - { env: [ 'dev', 'prod' ] }:** environments in which the corresponding command must be executed.
+- **install: commands: - { command: 'comando:symfony' }:** Symfony command to be executed
+- **install: commands: - { arguments: { opcion: 'valor'} }:** in case the symfony command requires passing arguments, it is done with the corresponding array.
 
 >In some commands it is necessary to pass an environment parameter, the value has been generated: **{{env}}** which is the same environment assigned in the execution of the zyos: install <environment> command.
 
@@ -124,12 +124,12 @@ zyos_install:
             - { enable: true, env: [ 'dev', 'prod' ], origin: '%kernel.project_dir%/src/Resources/public/css', destination: 'public/css' }
 ```
 
-**symlink: enable:** true to be able to use the command, false to disable it.
-**symlink: lockable:** If this parameter is true and the lock file exists ==src/Resources/install/lock.lock== the command will not be executed, if its value is false it will be executed without limitations.
-**symlink: commands: - { enable: true }:** true to be able to use the command, false to disable it.
-**symlink: commands: - { env: [ 'dev', 'prod' ] }:** environments in which the command must be executed.
-**symlink: commands: - { origin: 'source/directory' }:** source directory or file.
-**symlink: commands: - { destination: 'destination/directory' }:** destination directory or file (symbolic link).
+- **symlink: enable:** true to be able to use the command, false to disable it.
+- **symlink: lockable:** If this parameter is true and the lock file exists ==src/Resources/install/lock.lock== the command will not be executed, if its value is false it will be executed without limitations.
+- **symlink: commands: - { enable: true }:** true to be able to use the command, false to disable it.
+- **symlink: commands: - { env: [ 'dev', 'prod' ] }:** environments in which the command must be executed.
+- **symlink: commands: - { origin: 'source/directory' }:** source directory or file.
+- **symlink: commands: - { destination: 'destination/directory' }:** destination directory or file (symbolic link).
 
 >You can set a directory or file as a symbolic link.
 
@@ -152,12 +152,12 @@ zyos_install:
             - { enable: true, env: [ 'dev', 'prod' ], origin: '%kernel.project_dir%/src/Resources/public/css', destination: 'public/css' }
 ```
 
-**mirror: enable:** true to be able to use the command, false to disable it.
-**mirror: lockable:** If this parameter is true and the lock file exists ==src/Resources/install/lock.lock== the command will not be executed, if its value is false it will be executed without limitations.
-**mirror: commands: - { enable: true }:** true to be able to use the command, false to disable it.
-**mirror: commands: - { env: [ 'dev', 'prod' ] }:** environments in which the command must be executed.
-**mirror: commands: - { origin: 'source/dorectory' }:** source directory or file.
-**mirror: commands: - { destination: 'destination/directory' }:** destination directory or file (symbolic link).
+- **mirror: enable:** true to be able to use the command, false to disable it.
+- **mirror: lockable:** If this parameter is true and the lock file exists ==src/Resources/install/lock.lock== the command will not be executed, if its value is false it will be executed without limitations.
+- **mirror: commands: - { enable: true }:** true to be able to use the command, false to disable it.
+- **mirror: commands: - { env: [ 'dev', 'prod' ] }:** environments in which the command must be executed.
+- **mirror: commands: - { origin: 'source/dorectory' }:** source directory or file.
+- **mirror: commands: - { destination: 'destination/directory' }:** destination directory or file (symbolic link).
 
 >You can configure a directory or file as a mirror.
 
@@ -181,12 +181,12 @@ zyos_install:
             - { enable: true, env: [ 'dev', 'prod' ], files: [ 'file1.sql', 'file2.sql' ] }
 ```
 
-**sql: enable:** true to be able to use the command, false to disable it.
-**sql: lockable:** If this parameter is true and the lock file exists ==src/Resources/install/lock.lock== the command will not be executed, if its value is false it will be executed without limitations.
-**sql: commands: - { enable: true }:** true to be able to use the command, false to disable it.
-**sql: commands: - { env: [ 'dev', 'prod' ] }:** environments in which the command must be executed.
-**sql: commands: - { files: [ 'archivo1.sql', 'archivo2.sql' ] }:** SQL files to load.
-**sql: commands: - { connection: 'DOCTRINE connection name' }:** In case of handling multiple connections to databases with DOCTRINE, you can indicate the name of the connection to load the SQL files.
+- **sql: enable:** true to be able to use the command, false to disable it.
+- **sql: lockable:** If this parameter is true and the lock file exists ==src/Resources/install/lock.lock== the command will not be executed, if its value is false it will be executed without limitations.
+- **sql: commands: - { enable: true }:** true to be able to use the command, false to disable it.
+- **sql: commands: - { env: [ 'dev', 'prod' ] }:** environments in which the command must be executed.
+- **sql: commands: - { files: [ 'archivo1.sql', 'archivo2.sql' ] }:** SQL files to load.
+- **sql: commands: - { connection: 'DOCTRINE connection name' }:** In case of handling multiple connections to databases with DOCTRINE, you can indicate the name of the connection to load the SQL files.
 
 >The SQL files must be stored in the path: **src/Resources/install/sql/** so that the command can load them through DOCTRINE.
 
@@ -208,11 +208,11 @@ zyos_install:
             - { enable: true, env: 'dev', command: 'ls -al' }
             - { enable: true, env: [ 'dev', 'prod' ], command: 'ls -al' }
 ```
-**cli: enable:** true to be able to use the command, false to disable it.
-**cli: lockable:** If this parameter is true and the lock file exists ==src/Resources/install/lock.lock== the command will not be executed, if its value is false it will be executed without limitations.
-**cli: commands: - { enable: true }:** true to be able to use the command, false to disable it.
-**cli: commands: - { env: [ 'dev', 'prod' ] }:** environments in which the command must be executed.
-**cli: commands: - { command: 'command to execute' }:** command to execute in the operating system.
+- **cli: enable:** true to be able to use the command, false to disable it.
+- **cli: lockable:** If this parameter is true and the lock file exists ==src/Resources/install/lock.lock== the command will not be executed, if its value is false it will be executed without limitations.
+- **cli: commands: - { enable: true }:** true to be able to use the command, false to disable it.
+- **cli: commands: - { env: [ 'dev', 'prod' ] }:** environments in which the command must be executed.
+- **cli: commands: - { command: 'command to execute' }:** command to execute in the operating system.
 
 >The execution of the commands is carried out through the **Symfony Component Process**.
 
@@ -236,12 +236,12 @@ zyos_install:
             - { enable: true, env: ['dev', 'prod'], filepath: '%kernel.project_dir%/public/directory', validations: ['exists', 'is_dir'] }
 ```
 
-**validation: enable:** true to be able to use the command, false to disable it.
-**validation: lockable:** If this parameter is true and the lock file exists ==src/Resources/install/lock.lock== the command will not be executed, if its value is false it will be executed without limitations.
-**validation: commands: - { enable: true }:** true to be able to use the command, false to disable it.
-**validation: commands: - { env: [ 'dev', 'prod' ] }:** environments in which the command must be executed.
-**validation: commands: - { filepath: 'Path of file or directory' }:** directory and / or file in which the validations are carried out.
-**validation: commands: - { validations: [ 'validator' ] }:** validation to be applied
+- **validation: enable:** true to be able to use the command, false to disable it.
+- **validation: lockable:** If this parameter is true and the lock file exists ==src/Resources/install/lock.lock== the command will not be executed, if its value is false it will be executed without limitations.
+- **validation: commands: - { enable: true }:** true to be able to use the command, false to disable it.
+- **validation: commands: - { env: [ 'dev', 'prod' ] }:** environments in which the command must be executed.
+- **validation: commands: - { filepath: 'Path of file or directory' }:** directory and / or file in which the validations are carried out.
+- **validation: commands: - { validations: [ 'validator' ] }:** validation to be applied
 
 ### **Validaciones Disponibles**
 - **exists**: validates if a file or directory exists.
