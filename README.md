@@ -4,7 +4,7 @@
 
 ###Documentación
 
-- Versión 1.0.x-dev: [Documentación en Español](https://github.com/NeuralFramework/zyos_install/blob/1.0/docs/espanol_1.0.xde.md) 
+- Versión 1.0.x-dev: [Documentación en Español](https://github.com/NeuralFramework/zyos_install/blob/1.0/docs/espanol_1.0.xdev.md) 
 - Versión 0.1 dev-master: **DEPRECATED**
 
 
