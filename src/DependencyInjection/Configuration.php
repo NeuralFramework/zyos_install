@@ -401,15 +401,28 @@
                                             ->defaultNull()
                                         ->end()
                                         ->arrayNode('validations')
-                                            ->beforeNormalization()
-                                                ->ifEmpty()->then(function ($v) { return []; })
-                                                ->ifString()->then(function ($v) { return empty($v) ? [] : [$v]; })
+                                            ->prototype('array')
+                                                ->validate()
+                                                    ->always(function ($v) {
+                                                        if (!array_key_exists('params', $v)):
+                                                            $v['params'] = [];
+                                                        endif;
+                                                        return $v;
+                                                    })
+                                                ->end()
+                                                ->children()
+                                                    ->scalarNode('validation')->isRequired()->cannotBeEmpty()->end()
+                                                    ->arrayNode('params')
+                                                        ->normalizeKeys(false)
+                                                        ->ignoreExtraKeys(false)
+                                                        ->beforeNormalization()
+                                                            ->ifEmpty()->then(function ($v) { return []; })
+                                                        ->end()
+                                                        ->treatNullLike([])
+                                                        ->treatFalseLike([])
+                                                    ->end()
+                                                ->end()
                                             ->end()
-                                            ->prototype('scalar')->end()
-                                            ->treatNullLike([])
-                                            ->cannotBeEmpty()
-                                            ->isRequired()
-                                            ->requiresAtLeastOneElement()
                                         ->end()
 
                                     ->end()

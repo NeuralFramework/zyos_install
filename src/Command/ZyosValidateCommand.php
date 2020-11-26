@@ -13,9 +13,13 @@
     use Symfony\Component\Console\Input\InputInterface;
     use Symfony\Component\Console\Output\OutputInterface;
     use Symfony\Component\Console\Style\SymfonyStyle;
+    use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
     use Symfony\Component\Filesystem\Filesystem;
     use Symfony\Component\HttpFoundation\ParameterBag;
+    use ZyosInstallBundle\Handlers\ValidationCollections;
+    use ZyosInstallBundle\Interfaces\ValidatorInterface;
     use ZyosInstallBundle\Service\Parameters;
+    use ZyosInstallBundle\Validations\ExistsValidation;
 
     /**
      * Class ZyosValidate
@@ -45,16 +49,24 @@
         private $parameters;
 
         /**
+         * @var ValidationCollections
+         */
+        private $validations;
+
+        /**
          * ZyosValidateCommand constructor.
          *
-         * @param string|null $name
-         * @param Parameters  $parameters
+         * @param string|null           $name
+         * @param Filesystem            $filesystem
+         * @param Parameters            $parameters
+         * @param ValidationCollections $validations
          */
-        function __construct(?string $name = null, Filesystem $filesystem, Parameters $parameters) {
+        function __construct(?string $name = null, Filesystem $filesystem, Parameters $parameters, ValidationCollections $validations) {
 
             parent::__construct($name);
             $this->filesystem = $filesystem;
             $this->parameters = $parameters;
+            $this->validations = $validations;
             $this->setHidden($this->parameters->hiddenValidation());
             $this->setHelp($this->parameters->translateHelp('zyos.execute.validations.help'));
         }
@@ -150,8 +162,9 @@
         /**
          * Validate environment
          *
-         * @param SymfonyStyle $io
-         * @param string       $environment
+         * @param SymfonyStyle    $io
+         * @param OutputInterface $output
+         * @param string          $environment
          *
          * @return void
          */
@@ -167,8 +180,9 @@
         /**
          * Validate count commands
          *
-         * @param SymfonyStyle $io
-         * @param string       $environment
+         * @param SymfonyStyle    $io
+         * @param OutputInterface $output
+         * @param string          $environment
          *
          * @return void
          */
@@ -264,133 +278,75 @@
         private function executeValidations(SymfonyStyle $io, OutputInterface $output, string $environment, string $filepath, array $validations = []): void {
 
             $io->text(sprintf('<comment>*</comment> <info>%s:</info> %s',$this->parameters->translate('Validaciones del Recurso'),$filepath));
+            $io->newLine();
 
             foreach ($validations AS $validation):
-                $array = $this->getValidation($validation);
-
-                if (is_array($array)):
-                    $this->executeSingleValidations($io, $output, $filepath, $array);
+                if ($this->validations->has($validation['validation'])):
+                    $this->getOutputResult($io, $this->validations->get($validation['validation']), $filepath, $validation['params']);
                 else:
-                    $io->writeln($this->parameters->translate('La validación: %validation% No existe', ['%validation%' => $validation]));
+                    $this->getOutputError($io, $this->parameters->translate('La validación: %validation% No existe', ['%validation%' => $validation['validation'] ]));
                 endif;
             endforeach;
 
             $io->newLine(1);
+            $io->writeln('<comment>--------------------------------------------------------------------------</comment>');
+            $io->newLine(1);
         }
 
         /**
-         * Execute validations
+         * Get validation and show result
          *
-         * @param SymfonyStyle    $io
-         * @param OutputInterface $output
-         * @param string          $filepath
-         * @param array           $validations
+         * @param SymfonyStyle       $io
+         * @param ValidatorInterface $validator
+         * @param                    $value
+         * @param array              $params
          *
          * @return void
          */
-        private function executeSingleValidations(SymfonyStyle $io, OutputInterface $output, string $filepath, array $validations = []): void {
+        private function getOutputResult(SymfonyStyle $io, ValidatorInterface $validator, $value, array $params = []) {
 
-            if ($this->getFunction($validations['function'], $filepath)):
-                $io->write(sprintf('    <info>%s</info>', defined('PHP_WINDOWS_VERSION_BUILD') ? 'PASSED' : '✔ PASSED'));
+            if ($validator->validate($value, $params)):
+                $this->getOutputPassed($io);
             else:
-                $io->write(sprintf('    <fg=red>%s</>', defined('PHP_WINDOWS_VERSION_BUILD') ? 'FAILED' : '✕ FAILED'));
+                $this->getOutputFailed($io);
             endif;
 
-            $io->writeln(sprintf(' %s', $validations['name']));
+            $io->writeln(sprintf(' %s', $this->parameters->translate($validator->getDescription()) ));
         }
 
         /**
-         * Return data of validation function
+         * Show message pass
          *
-         * @param string|null $validation
+         * @param SymfonyStyle $io
          *
-         * @return array|null
+         * @return void
          */
-        private function getValidation(?string $validation): ?array {
-
-            $array = [
-                'exists'               => ['name' => $this->parameters->translate('Existencia del recurso'), 'function' => 'exists'],
-                'not_exists'           => ['name' => $this->parameters->translate('No debe existir el recurso'), 'function' => 'not_exists'],
-                'is_file'              => ['name' => $this->parameters->translate('Es un archivo'), 'function' => 'is_file'],
-                'is_not_file'          => ['name' => $this->parameters->translate('No es un archivo'), 'function' => 'is_not_file'],
-                'is_dir'               => ['name' => $this->parameters->translate('Es un directorio'), 'function' => 'is_dir'],
-                'is_not_dir'           => ['name' => $this->parameters->translate('No es un directorio'), 'function' => 'is_not_dir'],
-                'is_link'              => ['name' => $this->parameters->translate('Es un enlace simbolico'), 'function' => 'is_link'],
-                'is_not_link'          => ['name' => $this->parameters->translate('No es un enlace simbólico'), 'function' => 'is_not_link'],
-                'is_executable'        => ['name' => $this->parameters->translate('Es un ejecutable'), 'function' => 'is_executable'],
-                'is_not_executable'    => ['name' => $this->parameters->translate('No es un ejecutable'), 'function' => 'is_not_executable'],
-                'is_readable'          => ['name' => $this->parameters->translate('Se puede leer'), 'function' => 'is_readable'],
-                'is_not_readable'      => ['name' => $this->parameters->translate('No se debe leer'), 'function' => 'is_not_readable'],
-                'is_writable'          => ['name' => $this->parameters->translate('Se puede escribir'), 'function' => 'is_writable'],
-                'is_not_writable'      => ['name' => $this->parameters->translate('No se debe escribir'), 'function' => 'is_not_writable'],
-                'is_uploaded_file'     => ['name' => $this->parameters->translate('El archivo fue subido mediante HTTP POST'), 'function' => 'is_uploaded_file'],
-                'is_not_uploaded_file' => ['name' => $this->parameters->translate('El archivo NO fue subido mediante HTTP POST'), 'function' => 'is_not_uploaded_file']
-            ];
-
-            return array_key_exists($validation, $array) ? $array[$validation] : null;
+        private function getOutputPassed(SymfonyStyle $io): void {
+            $io->write(sprintf('    <info>%s</info>', defined('PHP_WINDOWS_VERSION_BUILD') ? 'PASSED' : '✔ PASSED'));
         }
 
         /**
-         * Execute functions and classes for validation
+         * Show message failed
          *
-         * @param string|null $function
-         * @param             $value
+         * @param SymfonyStyle $io
          *
-         * @return |null
+         * @return void
          */
-        private function getFunction(?string $function, $value) {
-
-            $array = [
-                'exists'               => ['method' => self::METHOD_IS, 'function' => [$this->filesystem, 'exists']],
-                'not_exists'           => ['method' => self::METHOD_NOT_IS, 'function' => [$this->filesystem, 'exists']],
-                'is_file'              => ['method' => self::METHOD_IS, 'function' => 'is_file'],
-                'is_not_file'          => ['method' => self::METHOD_NOT_IS, 'function' => 'is_file'],
-                'is_dir'               => ['method' => self::METHOD_IS, 'function' => 'is_dir'],
-                'is_not_dir'           => ['method' => self::METHOD_NOT_IS, 'function' => 'is_dir'],
-                'is_link'              => ['method' => self::METHOD_IS, 'function' => 'is_link'],
-                'is_not_link'          => ['method' => self::METHOD_NOT_IS, 'function' => 'is_link'],
-                'is_executable'        => ['method' => self::METHOD_IS, 'function' => 'is_executable'],
-                'is_not_executable'    => ['method' => self::METHOD_NOT_IS, 'function' => 'is_executable'],
-                'is_readable'          => ['method' => self::METHOD_IS, 'function' => 'is_readable'],
-                'is_not_readable'      => ['method' => self::METHOD_NOT_IS, 'function' => 'is_readable'],
-                'is_writable'          => ['method' => self::METHOD_IS, 'function' => 'is_writable'],
-                'is_not_writable'      => ['method' => self::METHOD_NOT_IS, 'function' => 'is_writable'],
-                'is_uploaded_file'     => ['method' => self::METHOD_IS, 'function' => 'is_uploaded_file'],
-                'is_not_uploaded_file' => ['method' => self::METHOD_NOT_IS, 'function' => 'is_uploaded_file']
-            ];
-
-            if (array_key_exists($function, $array)):
-                if ($array[$function]['method'] == self::METHOD_NOT_IS):
-                    return $this->callBooleanNotFunction($array[$function]['function'], [$value]);
-                else:
-                    return $this->callBooleanFunction($array[$function]['function'], [$value]);
-                endif;
-            endif;
-
-            return null;
+        private function getOutputFailed(SymfonyStyle $io): void {
+            $io->write(sprintf('    <fg=red>%s</>', defined('PHP_WINDOWS_VERSION_BUILD') ? 'FAILED' : '✕ FAILED'));
         }
 
         /**
-         * Execute functions and classes for validation
+         * Show message ERROR
          *
-         * @param       $function
-         * @param array $params
+         * @param SymfonyStyle $io
+         * @param string       $text
          *
-         * @return mixed
+         * @return void
          */
-        private function callBooleanFunction($function, array $params = []) {
-            return call_user_func_array($function, $params);
-        }
+        private function getOutputError(SymfonyStyle $io, string $text): void {
 
-        /**
-         * Execute functions and classes for validation
-         *
-         * @param       $function
-         * @param array $params
-         *
-         * @return bool
-         */
-        private function callBooleanNotFunction($function, array $params = []) {
-            return !call_user_func_array($function, $params);
+            $io->write(sprintf('    <fg=white;bg=red>%s </>', defined('PHP_WINDOWS_VERSION_BUILD') ? 'ERROR' : '✕ ERROR'));
+            $io->writeln(sprintf(' <fg=white;bg=red;options=bold>%s</>', $text));
         }
     }

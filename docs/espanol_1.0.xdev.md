@@ -251,8 +251,8 @@ Este comando es destinado para el proceso de validación de la posible estructur
 
 ## Uso
 ```sh
-php bin/console zyos:execute:cli <entorno>
-php bin/console zyos:execute:cli dev
+php bin/console zyos:execute:validation <entorno>
+php bin/console zyos:execute:validation dev
 ```
 
 ```yaml
@@ -261,8 +261,23 @@ zyos_install:
         enable: true
         lockable: true
         commands:
-            - { enable: true, env: 'dev', filepath: '%kernel.project_dir%/public/directory', validations: 'exists' }
-            - { enable: true, env: ['dev', 'prod'], filepath: '%kernel.project_dir%/public/directory', validations: ['exists', 'is_dir'] }
+            -   enable: true
+                env: 'dev'
+                filepath: '%kernel.project_dir%/public/directory'
+                validations:
+                    - { validation: 'exists' }
+                    - { validation: 'is_dir' }
+                    - { validation: 'is_not_link' }
+                    - { validation: 'validacion_personalizada', params: { llave: 'valor' } }
+            -   enable: true
+                env: ['dev', 'prod']
+                filepath: '%kernel.project_dir%/public/directory/image.png'
+                validations:
+                    - { validation: 'exists' }
+                    - { validation: 'is_file' }
+                    - { validation: 'is_readable' }
+                    - { validation: 'is_readable' }
+                    - { validation: 'validacion_personalizada', params: { llave: 'valor' } }
 ```
 
 - **validation: enable:** true para poder utilizar el comando, false para desactivarlo.
@@ -274,13 +289,82 @@ zyos_install:
 
 ### **Validaciones Disponibles**
 - **exists**: valida si un archivo o directorio existe.
+- **not_exists**: valida si un archivo o directorio no existe.
 - **is_file**: valida si el filepath es un archivo.
-- **is_dir**:valida si el filepath es un directorio.
+- **is_not_file**: valida si el filepath no es un archivo.
+- **is_dir**: valida si el filepath es un directorio.
+- **is_not_dir**: valida si el filepath no es un directorio.
 - **is_link**: valida si el filepath es un enlace simbólico.
+- **is_not_link**: valida si el filepath no es un enlace simbólico.
 - **is_executable**: valida si es ejecutable.
+- **is_not_executable**: valida no es ejecutable.
 - **is_readable**: valida si es posible leer el directorio o archivo.
+- **is_not_readable**: valida si no es posible leer el directorio o archivo.
 - **is_writable**: valida si es posible escribir en el directorio o archivo.
+- **is_not_writable**: valida si no es posible escribir en el directorio o archivo.
 
+### **Validaciones Personalizadas**
+Es posible generar validaciones personalizadas, la cuales ayudaran para los procesos que requieren validar más alla de las validaciones disponibles, solo es necesario extender a la interface **ZyosInstallBundle\Interfaces\ValidatorInterface**
+
+```php
+<?php
+    namespace App\Services;
+
+    use ZyosInstallBundle\Interfaces\ValidatorInterface;
+
+    /**
+     * Class TestValidator
+     *
+     * @package App\Services
+     */
+    class TestValidator implements ValidatorInterface {
+
+        /**
+         * Generate validation of value
+         *
+         * @param       $value filepath
+         * @param array $params parametros que se requieran en la validación
+         *
+         * @return bool
+         */
+        public function validate($value, array $params = []): bool {
+
+            /** Proceso y logica de validación **/
+            // Debe retornar un valor booleano
+            // True: ok - pass
+            // False: failed
+            return true;
+        }
+
+        /**
+         * Get description of validation
+         *
+         * @return string
+         */
+        public function getDescription(): string {
+            /** Nombre de la validación **/
+            return 'Validación Personalizada';
+        }
+
+        /**
+         * Get name function validation
+         *
+         * @return string
+         */
+        public function getName(): string {
+            /** función a utilizar en la configuración **/
+            return 'validacion_personalizada';
+        }
+    }
+```
+Si se maneja el autoload de clases y autowiring de Symfony se marcara la validación personalizada con el tag ***zyos_install.validators***, si no maneja el autoload de clases y autowiring se debe registrar en el archivo: ***config/services.yaml***
+
+```yaml
+services:
+    App\Services\TestValidator:
+        tags: [ 'zyos_install.validators' ]
+
+```
 
 ### **Export**
 Este es un proceso **UNICAMENTE PARA MySQL** el cual genera un dump de la base de datos utilizando el cliente ==**mysqldump**==

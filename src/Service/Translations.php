@@ -45,6 +45,7 @@
          *
          * @return string
          */
+        /* ts-ignore */
         public function translate(string $text, array $params = [], string $locale = self::LOCALE) {
             return $this->translator->trans($text, $params, $this->getDomain(), $locale);
         }

@@ -46,6 +46,7 @@
          * @param ParameterBagInterface $parameterBag
          * @param Filesystem            $filesystem
          * @param KernelInterface       $kernel
+         * @param Translations          $translations
          */
         function __construct(ParameterBagInterface $parameterBag, Filesystem $filesystem, KernelInterface $kernel, Translations $translations) {
 

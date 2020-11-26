@@ -77,10 +77,11 @@ zyos_install:
     ##
     # Validaciones de recursos / Validations
     #
-    # - { enable: true, env: 'dev', filepath: '%kernel.project_dir%/public/directory', validations: 'exists' }
-    # - { enable: true, env: ['dev', 'prod'], filepath: '%kernel.project_dir%/public/directory', validations: 'exists' }
-    # - { enable: true, env: 'dev', filepath: '%kernel.project_dir%/public/directory', validations: ['exists', 'is_dir'] }
-    # - { enable: true, env: ['dev', 'prod'], filepath: '%kernel.project_dir%/public/directory', validations: ['exists', 'is_dir'] }
+    # - { enable: true, env: 'dev', filepath: '%kernel.project_dir%/public/directory', validations: [ { validation: 'exists' } ] }
+    # - { enable: true, env: 'dev', filepath: '%kernel.project_dir%/public/directory', validations: [ { validation: 'custom_validation', params: { key: 'value' } } ] }
+    # - { enable: true, env: ['dev', 'prod'], filepath: '%kernel.project_dir%/public/directory', validations: [ { validation: 'exists' } ] }
+    # - { enable: true, env: 'dev', filepath: '%kernel.project_dir%/public/directory', validations: [ { validation: 'exists' }, { validation: 'is_dir' } ] }
+    # - { enable: true, env: ['dev', 'prod'], filepath: '%kernel.project_dir%/public/directory', validations: [ { validation: 'exists' }, { validation: 'is_dir' } ] }
     #
     # Validaciones / Validations
     #

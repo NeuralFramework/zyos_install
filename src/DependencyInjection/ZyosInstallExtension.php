@@ -6,6 +6,7 @@
     use Symfony\Component\DependencyInjection\ContainerBuilder;
     use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
     use Symfony\Component\HttpKernel\DependencyInjection\Extension;
+    use ZyosInstallBundle\Interfaces\ValidatorInterface;
 
     /**
      * Class ZyosInstallExtension
@@ -22,6 +23,8 @@
          * @throws \Exception
          */
         public function load(array $configs, ContainerBuilder $container): void {
+
+            $container->registerForAutoconfiguration(ValidatorInterface::class)->addTag('zyos_install.validators');
 
             $configuration = $this->getConfiguration($configs, $container);
             $config = $this->processConfiguration($configuration, $configs);
