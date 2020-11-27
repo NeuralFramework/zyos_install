@@ -35,7 +35,7 @@
          * @return string
          */
         public function getDescription(): string {
-            return 'Es un enlace simbolico';
+            return 'Es un enlace simbólico';
         }
 
         /**

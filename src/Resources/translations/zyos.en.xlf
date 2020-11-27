@@ -155,7 +155,7 @@
                 <target>Is directory</target>
             </trans-unit>
             <trans-unit id="39">
-                <source>Es un enlace simbolico</source>
+                <source>Es un enlace simbólico</source>
                 <target>Is symlink</target>
             </trans-unit>
             <trans-unit id="40">

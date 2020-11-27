@@ -155,8 +155,8 @@
                 <target>Es un directorio</target>
             </trans-unit>
             <trans-unit id="39">
-                <source>Es un enlace simbolico</source>
-                <target>Es un enlace simbolico</target>
+                <source>Es un enlace simbólico</source>
+                <target>Es un enlace simbólico</target>
             </trans-unit>
             <trans-unit id="40">
                 <source>Es un ejecutable</source>
