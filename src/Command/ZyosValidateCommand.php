@@ -280,6 +280,8 @@
             $io->text(sprintf('<comment>*</comment> <info>%s:</info> %s',$this->parameters->translate('Validaciones del Recurso'),$filepath));
             $io->newLine();
 
+            $this->getOutputInformation($io, $filepath);
+
             foreach ($validations AS $validation):
                 if ($this->validations->has($validation['validation'])):
                     $this->getOutputResult($io, $this->validations->get($validation['validation']), $filepath, $validation['params']);
@@ -348,5 +350,105 @@
 
             $io->write(sprintf('    <fg=white;bg=red>%s </>', defined('PHP_WINDOWS_VERSION_BUILD') ? 'ERROR' : '✕ ERROR'));
             $io->writeln(sprintf(' <fg=white;bg=red;options=bold>%s</>', $text));
+        }
+
+        /**
+         * Get information of filepath
+         *
+         * @param SymfonyStyle $io
+         * @param string       $filepath
+         *
+         * @return void
+         */
+        private function getOutputInformation(SymfonyStyle $io, string $filepath): void {
+
+            if (file_exists($filepath)):
+                $this->getOutputRibbon($io, 'Tipo', $this->parameters->getTypeFilepath($filepath), 'green', true, true);
+                $this->getOutputRibbon($io, 'Permisos', substr(sprintf('%o', fileperms($filepath)), -4), 'yellow');
+                $this->getOutputRibbon($io, 'Permisos', $this->getOutputPermission($filepath), 'yellow', false);
+                $io->newLine(2);
+                $this->getOutputRibbon($io, 'Fecha de Creación', date("F d Y H:i:s A", filectime($filepath)), 'yellow', true, true);
+            else:
+                $this->getOutputRibbon($io, 'Tipo', 'Desconocido', null, true, true);
+                $this->getOutputRibbon($io, 'Permisos', 'Desconocido', null);
+                $this->getOutputRibbon($io, 'Permisos', 'Desconocido', null, false);
+            endif;
+
+            $io->newLine(2);
+        }
+
+        /**
+         * Generate ribbon info
+         *
+         * @param SymfonyStyle $io
+         * @param string       $title
+         * @param              $value
+         * @param string       $bg
+         * @param bool         $next
+         * @param bool         $space
+         *
+         * @return void
+         */
+        public function getOutputRibbon(SymfonyStyle $io, string $title, $value, ?string $bg, bool $next = true, bool $space = false): void {
+
+            $io->write(sprintf($space ? '    <bg=cyan;options=bold> %s </>' : '<bg=cyan;options=bold> %s </>', $this->parameters->translate($title) ));
+            if ('green' === $bg):
+                $io->write(sprintf('<bg=green;options=bold> %s </>', $this->parameters->translate($value) ));
+            elseif ('yellow' === $bg):
+                $io->write(sprintf('<bg=yellow;fg=black> %s </>', $this->parameters->translate($value) ));
+            else:
+                $io->write(sprintf('<bg=red;options=bold,blink> %s </>', $this->parameters->translate($value) ));
+            endif;
+
+            if ($next):
+                $io->write('  ');
+            endif;
+        }
+
+        /**
+         * Get string permission of filepath
+         *
+         * @param string $filepath
+         *
+         * @return string
+         */
+        private function getOutputPermission(string $filepath): string {
+
+            $perms = fileperms($filepath);
+
+            switch ($perms & 0xF000):
+                case 0xC000: $info = 's'; // socket
+                    break;
+                case 0xA000: $info = 'l'; // symbolic link
+                    break;
+                case 0x8000: $info = 'r'; // regular
+                    break;
+                case 0x6000: $info = 'b'; // block special
+                    break;
+                case 0x4000: $info = 'd'; // directory
+                    break;
+                case 0x2000: $info = 'c'; // character special
+                    break;
+                case 0x1000: $info = 'p'; // FIFO pipe
+                    break;
+                default: $info = 'u'; // unknown
+            endswitch;
+
+        // Owner
+            $info .= (($perms & 0x0100) ? 'r' : '-');
+            $info .= (($perms & 0x0080) ? 'w' : '-');
+            $info .= (($perms & 0x0040) ? (($perms & 0x0800) ? 's' : 'x' ) : (($perms & 0x0800) ? 'S' : '-'));
+
+        // Group
+            $info .= (($perms & 0x0020) ? 'r' : '-');
+            $info .= (($perms & 0x0010) ? 'w' : '-');
+            $info .= (($perms & 0x0008) ? (($perms & 0x0400) ? 's' : 'x' ) : (($perms & 0x0400) ? 'S' : '-'));
+
+        // World
+            $info .= (($perms & 0x0004) ? 'r' : '-');
+            $info .= (($perms & 0x0002) ? 'w' : '-');
+            $info .= (($perms & 0x0001) ? (($perms & 0x0200) ? 't' : 'x' ) : (($perms & 0x0200) ? 'T' : '-'));
+
+            return $info;
         }
     }

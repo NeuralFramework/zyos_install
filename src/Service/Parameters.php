@@ -469,4 +469,24 @@
 
             return $this->existsPath();
         }
+
+        /**
+         * Get type file or directory
+         *
+         * @param string $filepath
+         *
+         * @return string
+         */
+        public function getTypeFilepath(string $filepath): string {
+
+            if (is_link($filepath)):
+                return 'Link Simbólico';
+            elseif (is_dir($filepath)):
+                return 'Directorio';
+            elseif (is_file($filepath)):
+                return 'Archivo';
+            else:
+                return 'Desconocido';
+            endif;
+        }
     }

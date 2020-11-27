@@ -214,6 +214,38 @@
                 <source>El archivo NO fue subido mediante HTTP POST</source>
                 <target>El archivo NO fue subido mediante HTTP POST</target>
             </trans-unit>
+            <trans-unit id="54">
+                <source>Es una ruta absoluta</source>
+                <target>Es una ruta absoluta</target>
+            </trans-unit>
+            <trans-unit id="55">
+                <source>No es una ruta absoluta</source>
+                <target>No es una ruta absoluta</target>
+            </trans-unit>
+            <trans-unit id="56">
+                <source>Directorio</source>
+                <target>Directorio</target>
+            </trans-unit>
+            <trans-unit id="57">
+                <source>Link Simbólico</source>
+                <target>Link Simbólico</target>
+            </trans-unit>
+            <trans-unit id="58">
+                <source>Desconocido</source>
+                <target>Desconocido</target>
+            </trans-unit>
+            <trans-unit id="59">
+                <source>Permisos</source>
+                <target>Permisos</target>
+            </trans-unit>
+            <trans-unit id="60">
+                <source>Tipo</source>
+                <target>Tipo</target>
+            </trans-unit>
+            <trans-unit id="61">
+                <source>Fecha de Creación</source>
+                <target>Fecha de Creación</target>
+            </trans-unit>
 
         </body>
     </file>

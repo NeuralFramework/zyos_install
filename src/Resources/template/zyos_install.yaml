@@ -93,6 +93,8 @@ zyos_install:
     # 'is_not_dir' : No es un directorio / Not is directory
     # 'is_link' : Es un enlace simbolico / is symlink
     # 'is_not_link' : no es un enlace simbolico / Not is symlink
+    # 'is_absolute_path': valida si es una ruta absoluta / validate It is an absolute route.
+    # 'is_not_absolute_path': valida si no es una ruta absoluta / validate It is not an absolute route.
     # 'is_executable' :  Es ejecutable el archivo o directorio / is executable file or directory
     # 'is_not_executable' :  No es ejecutable el archivo o directorio / not is executable file or directory
     # 'is_readable' : Es posible leer el archivo o directorio / is readable file or directory

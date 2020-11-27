@@ -296,6 +296,8 @@ zyos_install:
 - **is_not_dir**: valida si el filepath no es un directorio.
 - **is_link**: valida si el filepath es un enlace simbólico.
 - **is_not_link**: valida si el filepath no es un enlace simbólico.
+- **is_absolute_path**: valida si es una ruta absoluta.
+- **is_not_absolute_path**: valida si no es una ruta absoluta.
 - **is_executable**: valida si es ejecutable.
 - **is_not_executable**: valida no es ejecutable.
 - **is_readable**: valida si es posible leer el directorio o archivo.
