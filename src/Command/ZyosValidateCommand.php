@@ -13,13 +13,11 @@
     use Symfony\Component\Console\Input\InputInterface;
     use Symfony\Component\Console\Output\OutputInterface;
     use Symfony\Component\Console\Style\SymfonyStyle;
-    use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
     use Symfony\Component\Filesystem\Filesystem;
     use Symfony\Component\HttpFoundation\ParameterBag;
     use ZyosInstallBundle\Handlers\ValidationCollections;
     use ZyosInstallBundle\Interfaces\ValidatorInterface;
     use ZyosInstallBundle\Service\Parameters;
-    use ZyosInstallBundle\Validations\ExistsValidation;
 
     /**
      * Class ZyosValidate
@@ -27,16 +25,6 @@
      * @package ZyosInstallBundle\Command
      */
     class ZyosValidateCommand extends Command {
-
-        /**
-         * @var int
-         */
-        const METHOD_IS = 1;
-
-        /**
-         * @var int
-         */
-        const METHOD_NOT_IS = 2;
 
         /**
          * @var Filesystem
@@ -277,43 +265,74 @@
          */
         private function executeValidations(SymfonyStyle $io, OutputInterface $output, string $environment, string $filepath, array $validations = []): void {
 
-            $io->text(sprintf('<comment>*</comment> <info>%s:</info> %s',$this->parameters->translate('Validaciones del Recurso'),$filepath));
-            $io->newLine();
-
-            $this->getOutputInformation($io, $filepath);
-
-            foreach ($validations AS $validation):
-                if ($this->validations->has($validation['validation'])):
-                    $this->getOutputResult($io, $this->validations->get($validation['validation']), $filepath, $validation['params']);
-                else:
-                    $this->getOutputError($io, $this->parameters->translate('La validación: %validation% No existe', ['%validation%' => $validation['validation'] ]));
-                endif;
-            endforeach;
+            $this->getOutputTitleValidation($io, $filepath);
+            $this->getLabelInformation($io, $filepath);
+            $this->iterateValidations($io, $filepath, $validations);
 
             $io->newLine(1);
             $io->writeln('<comment>--------------------------------------------------------------------------</comment>');
-            $io->newLine(1);
+            $io->newLine(2);
         }
 
         /**
-         * Get validation and show result
+         * Generate iterations of validations
+         *
+         * @param SymfonyStyle $io
+         * @param string       $filepath
+         * @param array        $validations
+         *
+         * @return void
+         */
+        private function iterateValidations(SymfonyStyle $io, string $filepath, array $validations = []): void {
+
+            foreach ($validations AS $validation):
+                $this->getHasValidations($io, $filepath, $validation['validation'], $validation['params']);
+            endforeach;
+        }
+
+        /**
+         * Validate has validation
+         *
+         * @param SymfonyStyle $io
+         * @param string       $filepath
+         * @param string       $validation
+         * @param array        $params
+         *
+         * @return void
+         */
+        private function getHasValidations(SymfonyStyle $io, string $filepath, string $validation, array $params = []): void {
+
+            if ($this->validations->has($validation)):
+                $this->getValidateFilepath($io, $this->validations->get($validation), $filepath, $params);
+            else:
+                $io->write('    ');
+                $this->getOutputError($io, 'La validación: %validation% No existe', [ '%validation%' => $validation ]);
+            endif;
+        }
+
+        /**
+         * Get validation filepath
          *
          * @param SymfonyStyle       $io
          * @param ValidatorInterface $validator
-         * @param                    $value
+         * @param string             $filepath
          * @param array              $params
          *
          * @return void
          */
-        private function getOutputResult(SymfonyStyle $io, ValidatorInterface $validator, $value, array $params = []) {
+        private function getValidateFilepath(SymfonyStyle $io, ValidatorInterface $validator, string $filepath, array $params = []): void {
 
-            if ($validator->validate($value, $params)):
+            $io->write('    ');
+
+            if ($validator->validate($filepath, $params)):
                 $this->getOutputPassed($io);
+                $io->write(' ');
+                $io->writeln( $this->parameters->translate($validator->getDescription()) );
             else:
                 $this->getOutputFailed($io);
+                $io->write(' ');
+                $io->writeln(sprintf('<fg=yellow>%s</>', $this->parameters->translate($validator->getDescription()) ));
             endif;
-
-            $io->writeln(sprintf(' %s', $this->parameters->translate($validator->getDescription()) ));
         }
 
         /**
@@ -324,7 +343,7 @@
          * @return void
          */
         private function getOutputPassed(SymfonyStyle $io): void {
-            $io->write(sprintf('    <info>%s</info>', defined('PHP_WINDOWS_VERSION_BUILD') ? 'PASSED' : '✔ PASSED'));
+            $io->write(sprintf('<info>%s</info>', defined('PHP_WINDOWS_VERSION_BUILD') ? 'PASSED' : '✔ PASSED'));
         }
 
         /**
@@ -335,7 +354,7 @@
          * @return void
          */
         private function getOutputFailed(SymfonyStyle $io): void {
-            $io->write(sprintf('    <fg=red>%s</>', defined('PHP_WINDOWS_VERSION_BUILD') ? 'FAILED' : '✕ FAILED'));
+            $io->write(sprintf('<fg=red>%s</>', defined('PHP_WINDOWS_VERSION_BUILD') ? 'FAILED' : '✕ FAILED'));
         }
 
         /**
@@ -343,66 +362,117 @@
          *
          * @param SymfonyStyle $io
          * @param string       $text
+         * @param array        $params
          *
          * @return void
          */
-        private function getOutputError(SymfonyStyle $io, string $text): void {
+        private function getOutputError(SymfonyStyle $io, string $text, array $params = []): void {
 
-            $io->write(sprintf('    <fg=white;bg=red>%s </>', defined('PHP_WINDOWS_VERSION_BUILD') ? 'ERROR' : '✕ ERROR'));
-            $io->writeln(sprintf(' <fg=white;bg=red;options=bold>%s</>', $text));
+            $io->write(sprintf('<fg=white;bg=red>%s </>', defined('PHP_WINDOWS_VERSION_BUILD') ? 'ERROR' : '✕ ERROR'));
+            $io->write(' ');
+            $io->writeln(sprintf('<fg=white;bg=red;options=bold>%s</>', $this->parameters->translate($text, $params) ));
         }
 
         /**
-         * Get information of filepath
+         * Show information labels
          *
          * @param SymfonyStyle $io
          * @param string       $filepath
          *
          * @return void
          */
-        private function getOutputInformation(SymfonyStyle $io, string $filepath): void {
+        private function getLabelInformation(SymfonyStyle $io, string $filepath): void {
 
-            if (file_exists($filepath)):
-                $this->getOutputRibbon($io, 'Tipo', $this->parameters->getTypeFilepath($filepath), 'green', true, true);
-                $this->getOutputRibbon($io, 'Permisos', substr(sprintf('%o', fileperms($filepath)), -4), 'yellow');
-                $this->getOutputRibbon($io, 'Permisos', $this->getOutputPermission($filepath), 'yellow', false);
+            if ($this->filesystem->exists($filepath)):
+
+                $io->write('  ');
+                $this->getOutputLabelCyan($io, 'Tipo');
+                $this->getOutputLabelGreen($io, $this->parameters->getTypeFilepath($filepath));
+                $io->write('  ');
+                $this->getOutputLabelCyan($io, 'Permisos');
+                $this->getOutputLabelYellow($io, substr(sprintf('%o', fileperms($filepath)), -4));
+                $io->write('  ');
+                $this->getOutputLabelCyan($io, 'Permisos');
+                $this->getOutputLabelYellow($io, $this->getFormatPermission($filepath));
                 $io->newLine(2);
-                $this->getOutputRibbon($io, 'Fecha de Creación', date("F d Y H:i:s A", filectime($filepath)), 'yellow', true, true);
+                $io->write('  ');
+                $this->getOutputLabelCyan($io, 'Fecha de Creación');
+                $this->getOutputLabelYellow($io, date("F d Y H:i:s A", filectime($filepath)));
             else:
-                $this->getOutputRibbon($io, 'Tipo', 'Desconocido', null, true, true);
-                $this->getOutputRibbon($io, 'Permisos', 'Desconocido', null);
-                $this->getOutputRibbon($io, 'Permisos', 'Desconocido', null, false);
+
+                $io->write('  ');
+                $this->getOutputLabelCyan($io, 'Tipo');
+                $this->getOutputLabelUnknown($io, 'Desconocido');
+                $io->write('  ');
+                $this->getOutputLabelCyan($io, 'Permisos');
+                $this->getOutputLabelUnknown($io, 'Desconocido');
+                $io->write('  ');
+                $this->getOutputLabelCyan($io, 'Permisos');
+                $this->getOutputLabelUnknown($io, 'Desconocido');
             endif;
 
-            $io->newLine(2);
+            $io->newLine(3);
         }
 
         /**
-         * Generate ribbon info
+         * Set title of validation
          *
          * @param SymfonyStyle $io
-         * @param string       $title
-         * @param              $value
-         * @param string       $bg
-         * @param bool         $next
-         * @param bool         $space
+         * @param string       $filepath
          *
          * @return void
          */
-        public function getOutputRibbon(SymfonyStyle $io, string $title, $value, ?string $bg, bool $next = true, bool $space = false): void {
+        private function getOutputTitleValidation(SymfonyStyle $io, string $filepath): void {
+            $io->writeln(sprintf('<comment>*</comment> <info>%s:</info> %s', $this->parameters->translate('Validaciones del Recurso'), $filepath));
+            $io->newLine();
+        }
 
-            $io->write(sprintf($space ? '    <bg=cyan;options=bold> %s </>' : '<bg=cyan;options=bold> %s </>', $this->parameters->translate($title) ));
-            if ('green' === $bg):
-                $io->write(sprintf('<bg=green;options=bold> %s </>', $this->parameters->translate($value) ));
-            elseif ('yellow' === $bg):
-                $io->write(sprintf('<bg=yellow;fg=black> %s </>', $this->parameters->translate($value) ));
-            else:
-                $io->write(sprintf('<bg=red;options=bold,blink> %s </>', $this->parameters->translate($value) ));
-            endif;
+        /**
+         * Get label cyan
+         *
+         * @param SymfonyStyle $io
+         * @param string       $text
+         *
+         * @return void
+         */
+        private function getOutputLabelCyan(SymfonyStyle $io, string $text): void {
+            $io->write(sprintf('<bg=cyan;options=bold> %s </>', $this->parameters->translate($text) ));
+        }
 
-            if ($next):
-                $io->write('  ');
-            endif;
+        /**
+         * Get label green
+         *
+         * @param SymfonyStyle $io
+         * @param string       $text
+         *
+         * @return void
+         */
+        private function getOutputLabelGreen(SymfonyStyle $io, string $text): void {
+            $io->write(sprintf('<bg=green;options=bold> %s </>', $this->parameters->translate($text) ));
+        }
+
+        /**
+         * Get label green
+         *
+         * @param SymfonyStyle $io
+         * @param string       $text
+         *
+         * @return void
+         */
+        private function getOutputLabelYellow(SymfonyStyle $io, string $text): void {
+            $io->write(sprintf('<bg=yellow;fg=black> %s </>', $this->parameters->translate($text) ));
+        }
+
+        /**
+         * Get label unknown
+         *
+         * @param SymfonyStyle $io
+         * @param string       $text
+         *
+         * @return void
+         */
+        private function getOutputLabelUnknown(SymfonyStyle $io, string $text): void {
+            $io->write(sprintf('<bg=red;options=bold,blink> %s </>', $this->parameters->translate($text) ));
         }
 
         /**
@@ -412,7 +482,7 @@
          *
          * @return string
          */
-        private function getOutputPermission(string $filepath): string {
+        private function getFormatPermission(string $filepath): string {
 
             $perms = fileperms($filepath);
 
@@ -434,17 +504,17 @@
                 default: $info = 'u'; // unknown
             endswitch;
 
-        // Owner
+            // Owner
             $info .= (($perms & 0x0100) ? 'r' : '-');
             $info .= (($perms & 0x0080) ? 'w' : '-');
             $info .= (($perms & 0x0040) ? (($perms & 0x0800) ? 's' : 'x' ) : (($perms & 0x0800) ? 'S' : '-'));
 
-        // Group
+            // Group
             $info .= (($perms & 0x0020) ? 'r' : '-');
             $info .= (($perms & 0x0010) ? 'w' : '-');
             $info .= (($perms & 0x0008) ? (($perms & 0x0400) ? 's' : 'x' ) : (($perms & 0x0400) ? 'S' : '-'));
 
-        // World
+            // World
             $info .= (($perms & 0x0004) ? 'r' : '-');
             $info .= (($perms & 0x0002) ? 'w' : '-');
             $info .= (($perms & 0x0001) ? (($perms & 0x0200) ? 't' : 'x' ) : (($perms & 0x0200) ? 'T' : '-'));
