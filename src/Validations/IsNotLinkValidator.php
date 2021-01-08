@@ -43,7 +43,7 @@
          *
          * @return string
          */
-        public function getName(): string {
+        public static function getName(): string {
             return 'is_not_link';
         }
     }

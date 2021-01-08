@@ -37,5 +37,5 @@
          *
          * @return string
          */
-        public function getName(): string;
+        public static function getName(): string;
     }
