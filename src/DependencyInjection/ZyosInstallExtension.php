@@ -75,7 +75,7 @@
          *
          * @return void
          */
-        private function setContainerItem(ContainerBuilder $container, array $array = [], string $key, string $alias, $default = false): void {
+        private function setContainerItem(ContainerBuilder $container, array $array, string $key, string $alias, $default = false): void {
 
             $defaults = array_key_exists($key, $array) ? $array[$key] : $default;
             $container->setParameter(sprintf('%s.%s', $this->getAlias(), $alias), $defaults);
