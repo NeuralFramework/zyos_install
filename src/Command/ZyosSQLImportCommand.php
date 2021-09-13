@@ -254,7 +254,7 @@
          *
          * @return void
          */
-        private function validateCountSQL(SymfonyStyle $io, OutputInterface $output, string $environment, array $array = [], ?string $connection): void {
+        private function validateCountSQL(SymfonyStyle $io, OutputInterface $output, string $environment, array $array, ?string $connection): void {
 
             if (count($array) > 0):
                 $this->iterateFiles($io, $output, $environment, $array, $connection);
@@ -273,7 +273,7 @@
          *
          * @return void
          */
-        private function iterateFiles(SymfonyStyle $io, OutputInterface $output, string $environment, array $array = [], ?string $connection): void {
+        private function iterateFiles(SymfonyStyle $io, OutputInterface $output, string $environment, array $array, ?string $connection): void {
 
             foreach ($array AS $item):
                 $this->executeSQLFile($io, $output, $environment, $item, $connection);
