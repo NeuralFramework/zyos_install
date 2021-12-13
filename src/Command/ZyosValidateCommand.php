@@ -44,14 +44,13 @@
         /**
          * ZyosValidateCommand constructor.
          *
-         * @param string|null           $name
          * @param Filesystem            $filesystem
          * @param Parameters            $parameters
          * @param ValidationCollections $validations
          */
-        function __construct(?string $name = null, Filesystem $filesystem, Parameters $parameters, ValidationCollections $validations) {
+        function __construct(Filesystem $filesystem, Parameters $parameters, ValidationCollections $validations) {
 
-            parent::__construct($name);
+            parent::__construct(null);
             $this->filesystem = $filesystem;
             $this->parameters = $parameters;
             $this->validations = $validations;
