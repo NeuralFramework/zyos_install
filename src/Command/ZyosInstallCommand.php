@@ -33,13 +33,11 @@
         /**
          * ZyosInstallCommand constructor.
          *
-         * @param string|null  $name
          * @param Parameters   $parameters
-         * @param Translations $translations
          */
-        function __construct(?string $name = null, Parameters $parameters) {
+        function __construct(Parameters $parameters) {
 
-            parent::__construct($name);
+            parent::__construct(null);
             $this->parameters = $parameters;
             $this->setHidden($this->parameters->existsLockFile());
             $this->setHelp($this->parameters->translateHelp('zyos.install.help'));
