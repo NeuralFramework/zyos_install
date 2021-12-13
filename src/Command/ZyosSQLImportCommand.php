@@ -39,13 +39,12 @@
         /**
          * ZyosSQLImportCommand constructor.
          *
-         * @param string|null $name
          * @param Filesystem  $filesystem
          * @param Parameters  $parameters
          */
-        function __construct(?string $name = null, Filesystem $filesystem, Parameters $parameters) {
+        function __construct(Filesystem $filesystem, Parameters $parameters) {
 
-            parent::__construct($name);
+            parent::__construct(null);
             $this->filesystem = $filesystem;
             $this->parameters = $parameters;
             $this->setHidden($this->parameters->hiddenSQL());
