@@ -34,12 +34,11 @@
         /**
          * ZyosSQLExportCommand constructor.
          *
-         * @param string|null $name
          * @param Parameters  $parameters
          */
-        function __construct(?string $name = null, Parameters $parameters) {
+        function __construct(Parameters $parameters) {
 
-            parent::__construct($name);
+            parent::__construct(null);
             $this->parameters = $parameters;
             $this->setHidden($this->parameters->hiddenExport());
             $this->setHelp($this->parameters->translateHelp('zyos.sql.export.help'));
